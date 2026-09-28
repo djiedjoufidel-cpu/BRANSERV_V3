@@ -1,0 +1,220 @@
+(function () {
+
+    console.log("=== BRANSERV ADMIN SUPABASE ===");
+
+    /* Le CDN Supabase doit déjà être chargé par admin.html */
+    if (typeof window.supabase === "undefined") {
+        console.error("❌ SDK SUPABASE ABSENT");
+        alert("Supabase n'est pas chargé.");
+        return;
+    }
+
+    console.log("✅ SDK Supabase présent");
+
+    const URL =
+        "https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+    const KEY =
+        "sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+    const client =
+        window.supabase.createClient(URL, KEY);
+
+    console.log("✅ Client Supabase créé");
+
+    async function start() {
+
+        console.log("🔐 Vérification de la session...");
+
+        const {
+            data: { session },
+            error
+        } = await client.auth.getSession();
+
+        if (error) {
+            console.error(error);
+            alert("Erreur Supabase : " + error.message);
+            return;
+        }
+
+        if (!session) {
+            alert("Connecte-toi avec ton compte administrateur.");
+            return;
+        }
+
+        console.log("👤 Connecté :", session.user.email);
+
+        const { data: admin, error: adminError } =
+            await client
+                .from("admin_users")
+                .select("user_id")
+                .eq("user_id", session.user.id)
+                .maybeSingle();
+
+        if (adminError) {
+            console.error(adminError);
+            alert("Erreur admin : " + adminError.message);
+            return;
+        }
+
+        if (!admin) {
+            alert("Ce compte n'est pas administrateur.");
+            return;
+        }
+
+        console.log("✅ Administrateur confirmé");
+
+        await loadProducts();
+    }
+
+    async function loadProducts() {
+
+        console.log("☁️ Chargement des produits...");
+
+        const { data, error } =
+            await client
+                .from("products")
+                .select("*")
+                .order("id", { ascending: false });
+
+        if (error) {
+            console.error(error);
+            alert("Erreur produits : " + error.message);
+            return;
+        }
+
+        console.log("✅ Produits reçus :", data);
+
+        const box =
+            document.getElementById("adminProducts");
+
+        if (!box) {
+            console.error("#adminProducts introuvable");
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            box.innerHTML = "<p>Aucun produit.</p>";
+            return;
+        }
+
+        box.innerHTML = data.map(p => {
+
+            const image =
+                p.image_url ||
+                "https://via.placeholder.com/300x200?text=BRANSERV";
+
+            return `
+                <div style="
+                    display:flex;
+                    gap:15px;
+                    padding:15px;
+                    margin:10px 0;
+                    border:1px solid #ddd;
+                    border-radius:12px;
+                ">
+
+                    <img
+                        src="${image}"
+                        style="
+                            width:100px;
+                            height:100px;
+                            object-fit:cover;
+                            border-radius:10px;
+                        "
+                    >
+
+                    <div>
+                        <h3>${p.name || ""}</h3>
+
+                        <p>
+                            Prix :
+                            ${Number(p.price || 0).toLocaleString("fr-FR")}
+                            FCFA
+                        </p>
+
+                        <p>
+                            Stock : ${p.stock ?? 0}
+                        </p>
+
+                        ${p.promo ? "<p>🔥 Promotion</p>" : ""}
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+    }
+
+    window.addProduct = async function () {
+
+        try {
+
+            const name =
+                document.getElementById("name")?.value.trim();
+
+            const category =
+                document.getElementById("category")?.value.trim();
+
+            const price =
+                Number(document.getElementById("price")?.value || 0);
+
+            const purchasePrice =
+                Number(document.getElementById("purchasePrice")?.value || 0);
+
+            const oldPrice =
+                Number(document.getElementById("oldPrice")?.value || 0);
+
+            const stock =
+                Number(document.getElementById("stock")?.value || 0);
+
+            const image =
+                document.getElementById("image")?.value.trim() || null;
+
+            const promo =
+                document.getElementById("promo")?.checked || false;
+
+            const active =
+                document.getElementById("active")?.checked ?? true;
+
+            if (!name) {
+                alert("Entre le nom du produit.");
+                return;
+            }
+
+            const { error } = await client
+                .from("products")
+                .insert({
+                    name,
+                    category: category || null,
+                    price,
+                    purchase_price: purchasePrice,
+                    old_price: oldPrice || null,
+                    stock,
+                    promo,
+                    active,
+                    image_url: image,
+                    description: null
+                });
+
+            if (error) {
+                console.error(error);
+                alert("Erreur : " + error.message);
+                return;
+            }
+
+            alert("✅ Produit ajouté !");
+
+            location.reload();
+
+        } catch (e) {
+
+            console.error(e);
+            alert("Erreur : " + e.message);
+
+        }
+    };
+
+    window.addEventListener("load", start);
+
+})();

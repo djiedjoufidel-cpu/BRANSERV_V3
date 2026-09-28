@@ -1,0 +1,149 @@
+function renderOrderSummary(){
+
+let box=document.getElementById("orderSummary");
+if(!box)return;
+
+let cart=getCart();
+let products=getProducts();
+
+let total=0;
+
+cart.forEach(i=>{
+let p=products.find(x=>x.id===i.id);
+if(p)total+=p.price*i.quantity;
+});
+
+box.innerHTML=`
+<div class="summary">
+<h3>Résumé</h3>
+<p>Articles : ${cart.reduce((a,b)=>a+b.quantity,0)}</p>
+<p><strong>Total : ${money(total)}</strong></p>
+</div>`;
+}
+
+function submitOrder(){
+
+let cart=getCart();
+
+if(!cart.length){
+alert("Votre panier est vide.");
+return;
+}
+
+let name=document.getElementById("customerName").value.trim();
+let phone=document.getElementById("customerPhone").value.trim();
+
+if(!name||!phone){
+alert("Veuillez renseigner votre nom et votre téléphone.");
+return;
+}
+
+let products=getProducts();
+
+let items=[];
+let subtotal=0;
+
+for(let item of cart){
+
+let p=products.find(x=>x.id===item.id);
+
+if(!p){
+alert("Un produit n'existe plus.");
+return;
+}
+
+if(item.quantity>p.stock){
+alert("Stock insuffisant pour : "+p.name);
+return;
+}
+
+let line=p.price*item.quantity;
+
+items.push({
+productId:p.id,
+productName:p.name,
+quantity:item.quantity,
+unitPrice:p.price,
+lineTotal:line
+});
+
+subtotal+=line;
+}
+
+let orderNumber=
+"BR-"+new Date().getFullYear()+"-"+
+String(Date.now()).slice(-6);
+
+let order={
+id:crypto.randomUUID?
+crypto.randomUUID():
+String(Date.now()),
+
+orderNumber,
+
+createdAt:new Date().toISOString(),
+
+customer:{
+name,
+phone,
+city:document.getElementById("city").value.trim(),
+district:document.getElementById("district").value.trim(),
+address:document.getElementById("address").value.trim()
+},
+
+delivery:document.getElementById("delivery").value,
+
+comment:document.getElementById("comment").value.trim(),
+
+items,
+
+subtotal,
+deliveryFee:0,
+total:subtotal,
+
+status:"new",
+
+invoice:false
+};
+
+let orders=getOrders();
+orders.push(order);
+saveOrders(orders);
+
+let message=
+"Bonjour BRANSERV 👋\n\n"+
+"Nouvelle commande : "+orderNumber+"\n\n"+
+"Client : "+name+"\n"+
+"Téléphone : "+phone+"\n";
+
+items.forEach(i=>{
+message+=
+"- "+i.productName+
+" x"+i.quantity+
+" = "+money(i.lineTotal)+"\n";
+});
+
+message+=
+"\nTotal : "+money(subtotal)+
+"\nStatut : Nouvelle";
+
+if(order.comment)
+message+="\nCommentaire : "+order.comment;
+
+localStorage.removeItem("branserv_cart");
+
+alert(
+"Commande enregistrée !\n\n"+
+"Numéro : "+orderNumber+
+"\n\nVous allez être redirigé vers WhatsApp."
+);
+
+window.location.href=
+"https://wa.me/"+WHATSAPP+
+"?text="+encodeURIComponent(message);
+}
+
+document.addEventListener(
+"DOMContentLoaded",
+renderOrderSummary
+);

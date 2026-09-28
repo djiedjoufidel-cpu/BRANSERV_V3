@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migration images — BRANSERV</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f4f4;
+  color:#111;
+}
+header{
+  background:#111;
+  color:#ffd21c;
+  padding:20px;
+  text-align:center;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+.card{
+  background:white;
+  padding:18px;
+  margin-bottom:15px;
+  border-radius:14px;
+  box-shadow:0 3px 12px #0001;
+}
+input{
+  width:100%;
+  padding:13px;
+  margin:6px 0 12px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  border:0;
+  border-radius:9px;
+  background:#111;
+  color:#ffd21c;
+  font-weight:bold;
+}
+button:disabled{opacity:.5}
+.progress{
+  margin-top:15px;
+  padding:15px;
+  background:#eee;
+  border-radius:10px;
+  white-space:pre-line;
+}
+img{
+  width:100px;
+  height:100px;
+  object-fit:cover;
+  border-radius:10px;
+}
+.success{color:green}
+.error{color:red}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>BRANSERV</h1>
+  <div>☁️ Migration des photos vers Supabase</div>
+</header>
+
+<div class="container">
+
+<div class="card">
+  <h2>🔐 Connexion administrateur</h2>
+
+  <input
+    id="email"
+    type="email"
+    placeholder="Email administrateur"
+  >
+
+  <input
+    id="password"
+    type="password"
+    placeholder="Mot de passe Supabase"
+  >
+
+  <button onclick="login()">
+    🔐 Se connecter
+  </button>
+
+  <div id="authStatus" class="progress">
+    Non connecté
+  </div>
+</div>
+
+<div class="card">
+  <h2>📦 Produits à migrer</h2>
+
+  <div id="products"></div>
+
+  <button id="migrateBtn" onclick="migrate()" disabled>
+    ☁️ Migrer les vraies photos vers Supabase
+  </button>
+
+  <div id="result" class="progress">
+    En attente...
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+const supabaseClient =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const STORAGE_KEY = "branserv_products";
+
+let currentSession = null;
+
+function getProducts(){
+  try{
+    return JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    ) || [];
+  }catch(e){
+    return [];
+  }
+}
+
+function showProducts(){
+
+  const products = getProducts();
+
+  const box =
+    document.getElementById("products");
+
+  const realImages =
+    products.filter(p =>
+      typeof p.image === "string" &&
+      p.image.startsWith("data:image/")
+    );
+
+  if(!realImages.length){
+
+    box.innerHTML =
+      "<p>❌ Aucune vraie photo locale trouvée.</p>";
+
+    return;
+  }
+
+  box.innerHTML =
+    realImages.map(p => `
+
+      <div style="
+        display:flex;
+        gap:15px;
+        align-items:center;
+        margin:12px 0;
+        padding:10px;
+        background:#fafafa;
+        border-radius:10px;
+      ">
+
+        <img src="${p.image}">
+
+        <div>
+          <strong>${escapeHtml(p.name)}</strong><br>
+          🟢 Photo locale prête
+        </div>
+
+      </div>
+
+    `).join("");
+}
+
+function escapeHtml(value){
+
+  return String(value || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+async function login(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const status =
+    document.getElementById("authStatus");
+
+  if(!email || !password){
+
+    status.className="progress error";
+    status.textContent =
+      "⚠️ Entre ton email et ton mot de passe.";
+
+    return;
+  }
+
+  status.textContent =
+    "⏳ Connexion...";
+
+  const {data,error} =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if(error){
+
+    status.className="progress error";
+
+    status.textContent =
+      "❌ Connexion refusée : " +
+      error.message;
+
+    return;
+  }
+
+  currentSession = data.session;
+
+  status.className="progress success";
+
+  status.textContent =
+    "✅ Administrateur connecté.";
+
+  document.getElementById("migrateBtn").disabled=false;
+
+}
+
+async function migrate(){
+
+  if(!currentSession){
+
+    alert("Connecte-toi d'abord.");
+
+    return;
+  }
+
+  const result =
+    document.getElementById("result");
+
+  const btn =
+    document.getElementById("migrateBtn");
+
+  btn.disabled=true;
+
+  const products = getProducts();
+
+  const realImages =
+    products.filter(p =>
+      typeof p.image === "string" &&
+      p.image.startsWith("data:image/")
+    );
+
+  if(!realImages.length){
+
+    result.textContent =
+      "❌ Aucune photo locale à migrer.";
+
+    btn.disabled=false;
+
+    return;
+  }
+
+  let output =
+    "🚀 Début de la migration...\n\n";
+
+  result.textContent=output;
+
+  let migrated = 0;
+
+  for(const p of realImages){
+
+    try{
+
+      output +=
+        "📦 " + p.name + "\n";
+
+      result.textContent=output;
+
+      /*
+       * Vérification administrateur
+       */
+      const {data:admin,error:adminError} =
+        await supabaseClient
+          .from("admin_users")
+          .select("user_id")
+          .eq("user_id",currentSession.user.id)
+          .maybeSingle();
+
+      if(adminError || !admin){
+
+        throw new Error(
+          "Ce compte n'est pas enregistré comme administrateur BRANSERV."
+        );
+
+      }
+
+      /*
+       * Conversion DATA URL -> Blob
+       */
+      const response =
+        await fetch(p.image);
+
+      const blob =
+        await response.blob();
+
+      const safeName =
+        String(p.name)
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g,"")
+          .replace(/[^a-zA-Z0-9]+/g,"-")
+          .toLowerCase();
+
+      const fileName =
+        Date.now() +
+        "-" +
+        safeName +
+        ".jpg";
+
+      const filePath =
+        "products/" + fileName;
+
+      /*
+       * Upload Storage
+       */
+      const {error:uploadError} =
+        await supabaseClient
+          .storage
+          .from("Branserv.b")
+          .upload(
+            filePath,
+            blob,
+            {
+              contentType:"image/jpeg",
+              upsert:false
+            }
+          );
+
+      if(uploadError){
+
+        throw new Error(
+          "Upload Storage : " +
+          uploadError.message
+        );
+
+      }
+
+      /*
+       * URL publique
+       */
+      const {data:urlData} =
+        supabaseClient
+          .storage
+          .from("Branserv.b")
+          .getPublicUrl(filePath);
+
+      const imageUrl =
+        urlData.publicUrl;
+
+      /*
+       * Création du produit dans Supabase
+       */
+      const {data:newProduct,error:productError} =
+        await supabaseClient
+          .from("products")
+          .insert({
+            name:p.name,
+            category:p.category || "Autres",
+            price:Number(p.price) || 0,
+            purchase_price:Number(p.purchasePrice) || 0,
+            old_price:Number(p.oldPrice) || 0,
+            stock:Number(p.stock) || 0,
+            image_url:imageUrl,
+            promo:Boolean(p.promo),
+            active:p.active !== false
+          })
+          .select()
+          .single();
+
+      if(productError){
+
+        /*
+         * Si la création du produit échoue,
+         * on supprime l'image qui vient d'être uploadée
+         * pour éviter de laisser des fichiers orphelins.
+         */
+
+        await supabaseClient
+          .storage
+          .from("Branserv.b")
+          .remove([filePath]);
+
+        throw new Error(
+          "Base de données : " +
+          productError.message
+        );
+
+      }
+
+      /*
+       * Remplacement local de la DATA URL
+       * par l'URL Supabase.
+       */
+      const localProduct =
+        products.find(x =>
+          String(x.id) === String(p.id)
+        );
+
+      if(localProduct){
+
+        localProduct.image =
+          imageUrl;
+
+      }
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(products)
+      );
+
+      migrated++;
+
+      output +=
+        "   ✅ Photo envoyée\n" +
+        "   ☁️ Supabase Storage OK\n" +
+        "   🗄️ Produit Supabase OK\n\n";
+
+      result.textContent=output;
+
+    }catch(error){
+
+      output +=
+        "   ❌ ERREUR : " +
+        error.message +
+        "\n\n";
+
+      result.textContent=output;
+
+    }
+
+  }
+
+  output +=
+    "================================\n" +
+    "✅ Migration terminée\n" +
+    "📸 Photos migrées : " +
+    migrated +
+    " / " +
+    realImages.length;
+
+  result.textContent=output;
+
+  btn.disabled=false;
+
+}
+
+showProducts();
+
+</script>
+
+</body>
+</html>

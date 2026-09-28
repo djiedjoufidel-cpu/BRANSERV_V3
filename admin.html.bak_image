@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administration - BRANSERV</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="branservLogin" style="
+position:fixed;
+inset:0;
+z-index:99999;
+background:#f5f7fb;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+">
+  <div style="
+  width:100%;
+  max-width:420px;
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 15px 50px rgba(0,0,0,.12);
+  ">
+    <div style="text-align:center;margin-bottom:25px;">
+      <h2 style="margin:0 0 8px;">🔐 BRANSERV Admin</h2>
+      <p style="margin:0;color:#666;">Connecte-toi avec ton compte administrateur</p>
+    </div>
+
+    <form id="branservLoginForm">
+      <label style="display:block;margin-bottom:7px;font-weight:600;">
+        Email
+      </label>
+
+      <input
+        id="branservEmail"
+        type="email"
+        autocomplete="username"
+        placeholder="Votre adresse email"
+        required
+        style="
+        width:100%;
+        box-sizing:border-box;
+        padding:13px;
+        border:1px solid #ddd;
+        border-radius:10px;
+        margin-bottom:16px;
+        "
+      >
+
+      <label style="display:block;margin-bottom:7px;font-weight:600;">
+        Mot de passe
+      </label>
+
+      <input
+        id="branservPassword"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Votre mot de passe"
+        required
+        style="
+        width:100%;
+        box-sizing:border-box;
+        padding:13px;
+        border:1px solid #ddd;
+        border-radius:10px;
+        margin-bottom:18px;
+        "
+      >
+
+      <button
+        type="submit"
+        id="branservLoginButton"
+        style="
+        width:100%;
+        padding:14px;
+        border:0;
+        border-radius:10px;
+        background:#111827;
+        color:white;
+        font-size:16px;
+        font-weight:700;
+        cursor:pointer;
+        "
+      >
+        Se connecter
+      </button>
+
+      <div
+        id="branservLoginError"
+        style="
+        margin-top:15px;
+        color:#dc2626;
+        text-align:center;
+        font-size:14px;
+        "
+      ></div>
+    </form>
+  </div>
+</div>
+
+
+<header>
+<a class="logo" href="admin.html">BRANSERV ADMIN</a>
+<nav>
+<a href="index.html">Boutique</a>
+<a href="admin.html">Dashboard</a>
+<a href="commandes.html">Commandes</a>
+<a href="ventes.html">Ventes</a>
+</nav>
+</header>
+
+<main class="section">
+
+<h1>Tableau de bord</h1>
+
+<div id="stats" class="stats"></div>
+
+<div class="quick-actions">
+<a class="btn" href="commandes.html">📦 Commandes</a>
+<a class="btn" href="ventes.html">💰 Ventes</a>
+<a class="btn" href="#productsAdmin">🛍️ Produits</a>
+</div>
+
+<div class="admin-card">
+<h2>Ajouter un produit</h2>
+
+<input id="name" placeholder="Nom du produit">
+<input id="category" placeholder="Catégorie">
+<input id="price" type="number" placeholder="Prix de vente">
+<input id="purchasePrice" type="number" placeholder="Prix d'achat privé">
+<input id="oldPrice" type="number" placeholder="Ancien prix">
+<input id="stock" type="number" min="0" placeholder="Quantité / stock">
+<input id="image" placeholder="URL de l'image">
+
+<label class="check">
+<input id="promo" type="checkbox">
+Produit en promotion
+</label>
+
+<label class="check">
+<input id="active" type="checkbox" checked>
+Produit visible
+</label>
+
+<button class="btn" onclick="addProduct()">Ajouter</button>
+</div>
+
+<h2 id="productsAdmin">Produits et stocks</h2>
+<div id="adminProducts"></div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.BRANSERV_SUPABASE_URL =
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+window.BRANSERV_SUPABASE_KEY =
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+window.branservSupabase =
+window.supabase.createClient(
+    window.BRANSERV_SUPABASE_URL,
+    window.BRANSERV_SUPABASE_KEY
+);
+
+console.log("✅ BRANSERV Supabase initialisé directement");
+</script>
+
+<script src="app.js"></script>
+<script src="admin-supabase.js?v=2"></script>
+
+</body>
+</html>

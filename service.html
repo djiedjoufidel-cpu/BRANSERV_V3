@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demande de service - BRANSERV</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  background:#f4f5f7;
+}
+
+.form-container{
+  max-width:700px;
+  margin:30px auto;
+  padding:20px;
+}
+
+.form-card{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.form-card h1{
+  margin-top:0;
+}
+
+.form-group{
+  margin-bottom:16px;
+}
+
+.form-group label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+  width:100%;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:16px;
+}
+
+.form-group textarea{
+  min-height:130px;
+  resize:vertical;
+}
+
+.submit{
+  width:100%;
+  padding:16px;
+  border:0;
+  border-radius:12px;
+  background:#ffd400;
+  font-weight:bold;
+  font-size:17px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 style="color:#ffd400;text-align:center">
+    BRANSERV
+  </h1>
+
+  <nav style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:15px">
+    <a href="index.html">Accueil</a>
+    <a href="services.html">Services</a>
+    <a href="produits.html">Produits</a>
+  </nav>
+</header>
+
+<main class="form-container">
+
+  <div class="form-card">
+
+    <h1 id="title">
+      Demande de service
+    </h1>
+
+    <p>
+      Remplissez le formulaire. BRANSERV
+      vous contactera pour confirmer votre demande.
+    </p>
+
+    <form id="serviceForm">
+
+      <div class="form-group">
+        <label>Nom complet *</label>
+        <input id="name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Téléphone / WhatsApp *</label>
+        <input id="phone" type="tel" required>
+      </div>
+
+      <div class="form-group">
+        <label>Ville *</label>
+        <input id="city" value="Yaoundé" required>
+      </div>
+
+      <div class="form-group">
+        <label>Quartier / localisation</label>
+        <input id="location">
+      </div>
+
+      <div class="form-group" id="extraGroup">
+
+        <label>Détails de la demande *</label>
+
+        <textarea
+          id="details"
+          required
+          placeholder="Décrivez votre besoin..."
+        ></textarea>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Date souhaitée</label>
+
+        <input
+          id="date"
+          type="date"
+        >
+
+      </div>
+
+      <button class="submit">
+        📩 Envoyer la demande
+      </button>
+
+    </form>
+
+  </div>
+
+</main>
+
+<script>
+
+const params =
+new URLSearchParams(location.search);
+
+const type =
+params.get("type") || "other";
+
+const titles = {
+
+  "repair-phone":
+    "🔧 Réparation téléphone",
+
+  "repair-computer":
+    "💻 Réparation ordinateur",
+
+  "supplement":
+    "💊 Conseil complément alimentaire",
+
+  "cosmetic":
+    "💄 Conseil cosmétique",
+
+  "design":
+    "🎨 Demande d'infographie",
+
+  "it":
+    "💻 Service informatique",
+
+  "other":
+    "🛠️ Demande de service"
+
+};
+
+document.getElementById("title").textContent =
+titles[type] || titles.other;
+
+
+document
+.getElementById("serviceForm")
+.addEventListener("submit",function(e){
+
+  e.preventDefault();
+
+  const request = {
+
+    id:
+      "SRV-" +
+      Date.now(),
+
+    type:type,
+
+    service:
+      titles[type] || titles.other,
+
+    name:
+      document.getElementById("name").value.trim(),
+
+    phone:
+      document.getElementById("phone").value.trim(),
+
+    city:
+      document.getElementById("city").value.trim(),
+
+    location:
+      document.getElementById("location").value.trim(),
+
+    details:
+      document.getElementById("details").value.trim(),
+
+    date:
+      document.getElementById("date").value,
+
+    status:"new",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+
+  const requests =
+    JSON.parse(
+      localStorage.getItem(
+        "branserv_service_requests"
+      ) || "[]"
+    );
+
+
+  requests.unshift(request);
+
+
+  localStorage.setItem(
+    "branserv_service_requests",
+    JSON.stringify(requests)
+  );
+
+
+  const message =
+`Bonjour BRANSERV,
+
+Je souhaite demander un service.
+
+Service : ${request.service}
+Nom : ${request.name}
+Téléphone : ${request.phone}
+Ville : ${request.city}
+Localisation : ${request.location}
+
+Détails :
+${request.details}
+
+Date souhaitée :
+${request.date || "À définir"}
+
+Référence :
+${request.id}`;
+
+
+  const whatsapp =
+    "https://wa.me/237651715307?text=" +
+    encodeURIComponent(message);
+
+
+  alert(
+    "✅ Demande enregistrée !\n\n" +
+    "Vous allez être redirigé vers WhatsApp."
+  );
+
+
+  window.location.href = whatsapp;
+
+});
+
+</script>
+
+</body>
+</html>

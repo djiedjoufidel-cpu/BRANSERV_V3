@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BRANSERV - Services</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.services-hero{
+  background:#111;
+  color:white;
+  padding:45px 20px;
+  text-align:center;
+}
+
+.services-hero h1{
+  color:#ffd400;
+  font-size:38px;
+  margin:0 0 12px;
+}
+
+.services-hero p{
+  max-width:700px;
+  margin:auto;
+  line-height:1.7;
+  color:#ddd;
+}
+
+.services-container{
+  max-width:1100px;
+  margin:auto;
+  padding:35px 16px 60px;
+}
+
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+
+.service-card{
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+  transition:.2s;
+}
+
+.service-card:hover{
+  transform:translateY(-3px);
+}
+
+.service-icon{
+  font-size:45px;
+}
+
+.service-card h2{
+  margin:12px 0 8px;
+}
+
+.service-card p{
+  color:#666;
+  line-height:1.5;
+}
+
+.service-btn{
+  display:inline-block;
+  margin-top:12px;
+  background:#ffd400;
+  color:#111;
+  text-decoration:none;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+@media(max-width:800px){
+  .services-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:550px){
+  .services-grid{
+    grid-template-columns:1fr;
+  }
+
+  .services-hero h1{
+    font-size:30px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 style="color:#ffd400;text-align:center">
+    BRANSERV
+  </h1>
+
+  <nav style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:15px">
+    <a href="index.html">Accueil</a>
+    <a href="produits.html">Produits</a>
+    <a href="services.html">Services</a>
+    <a href="panier.html">Panier</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+</header>
+
+<section class="services-hero">
+
+  <h1>🛠️ BRANSERV SERVICES</h1>
+
+  <p>
+    BRANSERV ne vend pas seulement des produits.
+    Nous proposons également des services professionnels
+    adaptés à vos besoins.
+  </p>
+
+</section>
+
+<main class="services-container">
+
+  <div class="services-grid">
+
+    <article class="service-card">
+      <div class="service-icon">🔧</div>
+      <h2>Réparation téléphone</h2>
+      <p>
+        Diagnostic, réparation et maintenance
+        de téléphones et smartphones.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=repair-phone">
+        Demander le service
+      </a>
+    </article>
+
+    <article class="service-card">
+      <div class="service-icon">💻</div>
+      <h2>Réparation ordinateur</h2>
+      <p>
+        Diagnostic, installation, maintenance
+        et réparation d'ordinateurs.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=repair-computer">
+        Demander le service
+      </a>
+    </article>
+
+    <article class="service-card">
+      <div class="service-icon">💊</div>
+      <h2>Conseil complément alimentaire</h2>
+      <p>
+        Orientation et conseil selon votre
+        demande en complément alimentaire.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=supplement">
+        Demander un conseil
+      </a>
+    </article>
+
+    <article class="service-card">
+      <div class="service-icon">💄</div>
+      <h2>Conseil cosmétique</h2>
+      <p>
+        Conseil et orientation pour vos
+        besoins en produits cosmétiques.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=cosmetic">
+        Demander un conseil
+      </a>
+    </article>
+
+    <article class="service-card">
+      <div class="service-icon">🎨</div>
+      <h2>Infographie</h2>
+      <p>
+        Logos, affiches, flyers, cartes de visite,
+        visuels et créations graphiques.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=design">
+        Demander un design
+      </a>
+    </article>
+
+    <article class="service-card">
+      <div class="service-icon">💻</div>
+      <h2>Services informatiques</h2>
+      <p>
+        Installation, configuration, logiciels
+        et assistance informatique.
+      </p>
+      <a class="service-btn"
+         href="service.html?type=it">
+        Demander le service
+      </a>
+    </article>
+
+  </div>
+
+</main>
+
+</body>
+</html>

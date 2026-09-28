@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Commandes - BRANSERV ADMIN</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f5f7;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:22px 15px;
+  text-align:center;
+}
+
+header h1{
+  margin:0 0 20px;
+  color:#ffd400;
+  font-size:28px;
+}
+
+nav{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:25px;
+}
+
+nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:17px;
+}
+
+.page{
+  max-width:1000px;
+  margin:auto;
+  padding:25px 16px 50px;
+}
+
+.page-title{
+  font-size:38px;
+  margin:15px 0 25px;
+}
+
+.search{
+  width:100%;
+  padding:17px;
+  border:1px solid #ddd;
+  border-radius:14px;
+  font-size:17px;
+  margin-bottom:25px;
+}
+
+.filters{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:25px;
+}
+
+.filters button{
+  border:0;
+  border-radius:10px;
+  padding:11px 14px;
+  font-weight:bold;
+  background:white;
+  cursor:pointer;
+}
+
+.filters button.active{
+  background:#ffd400;
+}
+
+#ordersList{
+  display:grid;
+  gap:20px;
+}
+
+.order-card{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:15px;
+  border-bottom:1px solid #eee;
+  padding-bottom:15px;
+}
+
+.order-number{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.order-date{
+  color:#777;
+  margin-top:5px;
+  font-size:14px;
+}
+
+.status{
+  padding:8px 12px;
+  border-radius:20px;
+  font-weight:bold;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.new{background:#fff3cd;color:#856404}
+.confirmed{background:#dbeafe;color:#1d4ed8}
+.sold{background:#dcfce7;color:#166534}
+.rejected{background:#fee2e2;color:#991b1b}
+.abandoned{background:#e5e7eb;color:#374151}
+.returned{background:#fef3c7;color:#92400e}
+
+.customer{
+  background:#f7f7f7;
+  border-radius:12px;
+  padding:15px;
+  margin-top:15px;
+}
+
+.customer h3,
+.products h3{
+  margin-top:0;
+}
+
+.product-line{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid #eee;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  font-size:21px;
+  font-weight:bold;
+  padding:18px 0;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.actions button,
+.actions a{
+  border:0;
+  border-radius:11px;
+  padding:13px 15px;
+  text-decoration:none;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.btn-confirm{
+  background:#ffd400;
+  color:#111;
+}
+
+.btn-sell{
+  background:#16a34a;
+  color:white;
+}
+
+.btn-reject{
+  background:#dc2626;
+  color:white;
+}
+
+.btn-return{
+  background:#f59e0b;
+  color:white;
+}
+
+.btn-invoice{
+  background:#111;
+  color:white;
+}
+
+.empty{
+  background:white;
+  border-radius:18px;
+  padding:45px 20px;
+  text-align:center;
+  color:#777;
+}
+
+.empty strong{
+  display:block;
+  color:#111;
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+.new-alert{
+  background:#fff7cc;
+  border:2px solid #ffd400;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:20px;
+  font-weight:bold;
+}
+
+@media(max-width:600px){
+
+  .page{
+    padding:18px 12px 40px;
+  }
+
+  .page-title{
+    font-size:31px;
+  }
+
+  .order-header{
+    flex-direction:column;
+  }
+
+  .status{
+    align-self:flex-start;
+  }
+
+  .product-line{
+    font-size:14px;
+  }
+
+  .total{
+    font-size:18px;
+  }
+
+  .actions button,
+  .actions a{
+    width:100%;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>BRANSERV ADMIN</h1>
+
+  <nav>
+    <a href="admin.html">Dashboard</a>
+    <a href="commandes.html">Commandes</a>
+    <a href="ventes.html">Ventes</a>
+    <a href="index.html">Boutique</a>
+  </nav>
+</header>
+
+<main class="page">
+
+  <h2 class="page-title">📦 Commandes</h2>
+
+  <div id="newAlert"></div>
+
+  <input
+    id="search"
+    class="search"
+    type="search"
+    placeholder="Rechercher numéro, client ou téléphone..."
+  >
+
+  <div class="filters">
+    <button class="active" onclick="setFilter('all',this)">Toutes</button>
+    <button onclick="setFilter('new',this)">🟡 Nouvelles</button>
+    <button onclick="setFilter('confirmed',this)">🔵 Confirmées</button>
+    <button onclick="setFilter('sold',this)">🟢 Vendues</button>
+    <button onclick="setFilter('returned',this)">↩️ Retournées</button>
+    <button onclick="setFilter('rejected',this)">🔴 Rejetées</button>
+  </div>
+
+  <div id="ordersList"></div>
+
+</main>
+
+<script>
+
+let currentFilter = "all";
+let ordersKey = null;
+let productsKey = null;
+
+const STATUS = {
+  new: ["🟡 Nouvelle","new"],
+  confirmed: ["🔵 Confirmée","confirmed"],
+  sold: ["🟢 Vendue","sold"],
+  returned: ["↩️ Retournée","returned"],
+  rejected: ["🔴 Rejetée","rejected"],
+  abandoned: ["⚫ Abandonnée","abandoned"]
+};
+
+function money(value){
+  return Number(value || 0).toLocaleString("fr-FR")+" FCFA";
+}
+
+function safe(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function dateText(value){
+  if(!value) return "";
+  try{
+    return new Date(value).toLocaleString("fr-FR");
+  }catch(e){
+    return "";
+  }
+}
+
+/*
+  Recherche automatiquement le tableau contenant
+  les commandes déjà enregistrées.
+*/
+function detectOrders(){
+
+  const preferred = [
+    "brans_orders",
+    "orders",
+    "brans_orders_v2"
+  ];
+
+  for(const key of preferred){
+
+    try{
+      const data = JSON.parse(localStorage.getItem(key));
+
+      if(Array.isArray(data) &&
+         data.some(x =>
+           x &&
+           (
+             x.orderNumber ||
+             x.customer ||
+             x.items
+           )
+         )){
+        ordersKey = key;
+        return data;
+      }
+
+    }catch(e){}
+  }
+
+  for(let i=0;i<localStorage.length;i++){
+
+    const key = localStorage.key(i);
+
+    try{
+
+      const data = JSON.parse(localStorage.getItem(key));
+
+      if(
+        Array.isArray(data) &&
+        data.length > 0 &&
+        data.some(x =>
+          x &&
+          (
+            x.orderNumber ||
+            x.customer ||
+            x.items
+          )
+        )
+      ){
+        ordersKey = key;
+        return data;
+      }
+
+    }catch(e){}
+  }
+
+  return [];
+}
+
+function getProducts(){
+
+  const preferred = [
+    "brans_products",
+    "products"
+  ];
+
+  for(const key of preferred){
+
+    try{
+
+      const data = JSON.parse(localStorage.getItem(key));
+
+      if(Array.isArray(data)){
+
+        productsKey = key;
+        return data;
+
+      }
+
+    }catch(e){}
+  }
+
+  return [];
+}
+
+function saveOrders(data){
+
+  if(!ordersKey){
+    ordersKey = "brans_orders";
+  }
+
+  localStorage.setItem(
+    ordersKey,
+    JSON.stringify(data)
+  );
+}
+
+function saveProducts(data){
+
+  if(!productsKey){
+    productsKey = "brans_products";
+  }
+
+  localStorage.setItem(
+    productsKey,
+    JSON.stringify(data)
+  );
+}
+
+function render(){
+
+  const orders = detectOrders();
+
+  const search =
+    document.getElementById("search")
+      .value
+      .toLowerCase()
+      .trim();
+
+  let filtered = orders.filter(order => {
+
+    if(
+      currentFilter !== "all" &&
+      order.status !== currentFilter
+    ){
+      return false;
+    }
+
+    if(!search){
+      return true;
+    }
+
+    const customer = order.customer || {};
+
+    const text = [
+
+      order.orderNumber,
+
+      customer.name,
+
+      customer.phone,
+
+      customer.city,
+
+      customer.district,
+
+      customer.address
+
+    ].join(" ").toLowerCase();
+
+    return text.includes(search);
+
+  });
+
+  filtered.sort((a,b) =>
+    new Date(b.createdAt || 0) -
+    new Date(a.createdAt || 0)
+  );
+
+  const newCount =
+    orders.filter(o => o.status === "new").length;
+
+  const alertBox =
+    document.getElementById("newAlert");
+
+  if(newCount > 0){
+
+    alertBox.innerHTML = `
+      <div class="new-alert">
+        🔔 ${newCount}
+        nouvelle${newCount > 1 ? "s" : ""}
+        commande${newCount > 1 ? "s" : ""}
+        en attente de validation.
+      </div>
+    `;
+
+  }else{
+
+    alertBox.innerHTML = "";
+
+  }
+
+  const container =
+    document.getElementById("ordersList");
+
+  if(!filtered.length){
+
+    container.innerHTML = `
+      <div class="empty">
+
+        <div style="font-size:55px">📦</div>
+
+        <strong>
+          Aucune commande à afficher
+        </strong>
+
+        <span>
+          Les commandes nouvelles apparaîtront ici.
+        </span>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    filtered.map(order => createOrderCard(order)).join("");
+}
+
+function createOrderCard(order){
+
+  const customer =
+    order.customer || {};
+
+  const items =
+    Array.isArray(order.items)
+      ? order.items
+      : [];
+
+  const status =
+    STATUS[order.status] ||
+    ["⚪ "+(order.status || "Inconnue"),""];
+
+  const productsHTML =
+    items.map(item => `
+
+      <div class="product-line">
+
+        <span>
+          ${safe(item.productName || "Produit")}
+          × ${Number(item.quantity || 0)}
+        </span>
+
+        <strong>
+          ${money(item.lineTotal || 0)}
+        </strong>
+
+      </div>
+
+    `).join("");
+
+  let actions = "";
+
+  if(order.status === "new"){
+
+    actions = `
+
+      <button
+        class="btn-confirm"
+        onclick="confirmOrder('${safe(order.id)}')">
+
+        ✅ Valider la commande
+
+      </button>
+
+      <button
+        class="btn-reject"
+        onclick="rejectOrder('${safe(order.id)}')">
+
+        ❌ Rejeter
+
+      </button>
+
+    `;
+
+  }
+
+  if(order.status === "confirmed"){
+
+    actions = `
+
+      <button
+        class="btn-sell"
+        onclick="sellOrder('${safe(order.id)}')">
+
+        💰 Marquer comme vendue
+
+      </button>
+
+      <button
+        class="btn-reject"
+        onclick="rejectOrder('${safe(order.id)}')">
+
+        ❌ Rejeter
+
+      </button>
+
+    `;
+
+  }
+
+  if(order.status === "sold"){
+
+    actions = `
+
+      <a
+        class="btn-invoice"
+        href="facture.html?id=${encodeURIComponent(order.id)}">
+
+        🧾 Facture
+
+      </a>
+
+      <button
+        class="btn-return"
+        onclick="returnOrder('${safe(order.id)}')">
+
+        ↩️ Retour
+
+      </button>
+
+    `;
+
+  }
+
+  if(order.status === "returned"){
+
+    actions = `
+
+      <a
+        class="btn-invoice"
+        href="facture.html?id=${encodeURIComponent(order.id)}">
+
+        🧾 Facture
+
+      </a>
+
+    `;
+
+  }
+
+  return `
+
+    <article class="order-card">
+
+      <div class="order-header">
+
+        <div>
+
+          <div class="order-number">
+            📦 ${safe(
+              order.orderNumber ||
+              order.id ||
+              "Commande"
+            )}
+          </div>
+
+          <div class="order-date">
+            ${dateText(order.createdAt)}
+          </div>
+
+        </div>
+
+        <span class="status ${status[1]}">
+          ${status[0]}
+        </span>
+
+      </div>
+
+      <div class="customer">
+
+        <h3>👤 Client</h3>
+
+        <div>
+          <strong>
+            ${safe(customer.name || "Nom non renseigné")}
+          </strong>
+        </div>
+
+        <div>
+          📱 ${safe(customer.phone || "Téléphone non renseigné")}
+        </div>
+
+        <div>
+          📍 ${safe(
+            customer.address ||
+            customer.district ||
+            customer.city ||
+            "Adresse non renseignée"
+          )}
+        </div>
+
+      </div>
+
+      <div class="products">
+
+        <h3>🛒 Produits commandés</h3>
+
+        ${productsHTML}
+
+      </div>
+
+      <div class="total">
+
+        <span>Total</span>
+
+        <strong>
+          ${money(order.total)}
+        </strong>
+
+      </div>
+
+      ${
+        order.comment
+        ? `
+          <div class="customer">
+            💬 ${safe(order.comment)}
+          </div>
+        `
+        : ""
+      }
+
+      <div class="actions">
+
+        ${actions}
+
+      </div>
+
+    </article>
+
+  `;
+}
+
+function setFilter(filter,button){
+
+  currentFilter = filter;
+
+  document
+    .querySelectorAll(".filters button")
+    .forEach(b => b.classList.remove("active"));
+
+  button.classList.add("active");
+
+  render();
+}
+
+function confirmOrder(id){
+
+  const orders = detectOrders();
+
+  const order =
+    orders.find(o =>
+      String(o.id) === String(id)
+    );
+
+  if(!order){
+
+    alert("Commande introuvable.");
+    return;
+
+  }
+
+  order.status = "confirmed";
+  order.confirmedAt =
+    new Date().toISOString();
+
+  saveOrders(orders);
+
+  render();
+
+  alert("✅ Commande validée.");
+}
+
+function rejectOrder(id){
+
+  const orders = detectOrders();
+
+  const order =
+    orders.find(o =>
+      String(o.id) === String(id)
+    );
+
+  if(!order){
+
+    alert("Commande introuvable.");
+    return;
+
+  }
+
+  if(
+    !confirm(
+      "Voulez-vous vraiment rejeter cette commande ?"
+    )
+  ){
+    return;
+  }
+
+  order.status = "rejected";
+
+  order.rejectedAt =
+    new Date().toISOString();
+
+  saveOrders(orders);
+
+  render();
+
+  alert("❌ Commande rejetée.");
+}
+
+function sellOrder(id){
+
+  const orders = detectOrders();
+
+  const products = getProducts();
+
+  const order =
+    orders.find(o =>
+      String(o.id) === String(id)
+    );
+
+  if(!order){
+
+    alert("Commande introuvable.");
+    return;
+
+  }
+
+  if(
+    order.status !== "new" &&
+    order.status !== "confirmed"
+  ){
+
+    alert(
+      "Cette commande ne peut plus être vendue."
+    );
+
+    return;
+  }
+
+  /*
+    Vérification stock
+  */
+
+  for(const item of order.items || []){
+
+    const product =
+      products.find(p =>
+        String(p.id) ===
+        String(item.productId)
+      );
+
+    if(!product){
+
+      alert(
+        "Produit introuvable : "+
+        item.productName
+      );
+
+      return;
+    }
+
+    if(
+      Number(product.stock || 0) <
+      Number(item.quantity || 0)
+    ){
+
+      alert(
+        "Stock insuffisant pour : "+
+        item.productName
+      );
+
+      return;
+    }
+
+  }
+
+  if(
+    !confirm(
+      "Confirmer la vente de cette commande ?"
+    )
+  ){
+    return;
+  }
+
+  let cost = 0;
+
+  for(const item of order.items || []){
+
+    const product =
+      products.find(p =>
+        String(p.id) ===
+        String(item.productId)
+      );
+
+    product.stock -=
+      Number(item.quantity || 0);
+
+    const purchasePrice =
+      Number(product.purchasePrice || 0);
+
+    item.purchasePrice =
+      purchasePrice;
+
+    cost +=
+      purchasePrice *
+      Number(item.quantity || 0);
+
+  }
+
+  order.status = "sold";
+
+  order.soldAt =
+    new Date().toISOString();
+
+  order.costTotal = cost;
+
+  order.profit =
+    Number(order.total || 0) - cost;
+
+  order.invoice = true;
+
+  saveProducts(products);
+  saveOrders(orders);
+
+  render();
+
+  alert(
+    "✅ Vente enregistrée.\n\n"+
+    "Chiffre d'affaires : "+
+    money(order.total)+
+    "\nCoût d'achat : "+
+    money(cost)+
+    "\nBénéfice : "+
+    money(order.profit)
+  );
+}
+
+function returnOrder(id){
+
+  const orders = detectOrders();
+
+  const products = getProducts();
+
+  const order =
+    orders.find(o =>
+      String(o.id) === String(id)
+    );
+
+  if(!order){
+
+    alert("Commande introuvable.");
+    return;
+
+  }
+
+  if(order.status !== "sold"){
+
+    alert(
+      "Cette commande n'est pas une vente."
+    );
+
+    return;
+  }
+
+  const soldDate =
+    new Date(
+      order.soldAt ||
+      order.createdAt
+    );
+
+  const hours =
+    (Date.now() - soldDate.getTime())
+    / 3600000;
+
+  if(hours >= 24){
+
+    alert(
+      "❌ Passé 24 h, le(s) produit(s) ne sont plus repris."
+    );
+
+    return;
+  }
+
+  const reason =
+    prompt("Motif du retour :");
+
+  if(reason === null){
+    return;
+  }
+
+  for(const item of order.items || []){
+
+    const product =
+      products.find(p =>
+        String(p.id) ===
+        String(item.productId)
+      );
+
+    if(product){
+
+      product.stock =
+        Number(product.stock || 0) +
+        Number(item.quantity || 0);
+
+    }
+
+  }
+
+  order.status = "returned";
+
+  order.returnedAt =
+    new Date().toISOString();
+
+  order.returnReason =
+    reason || "Non précisé";
+
+  order.returnedTotal =
+    Number(order.total || 0);
+
+  order.returnedCost =
+    Number(order.costTotal || 0);
+
+  order.returnedProfit =
+    Number(order.profit || 0);
+
+  order.costTotal = 0;
+  order.profit = 0;
+
+  saveProducts(products);
+  saveOrders(orders);
+
+  render();
+
+  alert(
+    "↩️ Retour enregistré.\n\n"+
+    "Le stock a été restauré."
+  );
+}
+
+document
+  .getElementById("search")
+  .addEventListener("input",render);
+
+render();
+
+</script>
+
+</body>
+</html>

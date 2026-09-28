@@ -1,0 +1,438 @@
+
+(function () {
+  "use strict";
+
+  const SUPABASE_URL =
+    window.BRANSERV_SUPABASE_URL ||
+    "https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+  const SUPABASE_KEY =
+    window.BRANSERV_SUPABASE_KEY ||
+    "sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+  let client = null;
+
+  function getClient() {
+    if (!window.supabase) {
+      throw new Error("Le SDK Supabase n'est pas chargé.");
+    }
+
+    if (!client) {
+      client = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+    }
+
+    return client;
+  }
+
+  function showLogin() {
+    const box = document.getElementById("branservLogin");
+    if (box) box.style.display = "flex";
+  }
+
+  function hideLogin() {
+    const box = document.getElementById("branservLogin");
+    if (box) box.style.display = "none";
+  }
+
+  function showError(message) {
+    const error = document.getElementById("branservLoginError");
+    if (error) error.textContent = message;
+  }
+
+  async function login(email, password) {
+    const supabase = getClient();
+
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data.session) {
+      throw new Error("Aucune session Supabase créée.");
+    }
+
+    return data.session;
+  }
+
+  async function checkAdmin() {
+    const supabase = getClient();
+
+    console.log("🔐 Vérification de la session...");
+
+    const {
+      data: { session },
+      error
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error("Erreur session :", error);
+      showLogin();
+      return false;
+    }
+
+    if (!session) {
+      console.log("ℹ️ Aucune session administrateur.");
+      showLogin();
+      return false;
+    }
+
+    console.log("👤 Connecté :", session.user.email);
+    console.log("🆔 UID :", session.user.id);
+
+    const { data: admin, error: adminError } =
+      await supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+    if (adminError) {
+      console.error("Erreur vérification admin :", adminError);
+      showLogin();
+      showError(
+        "Impossible de vérifier les droits administrateur."
+      );
+      return false;
+    }
+
+    if (!admin) {
+      console.error("❌ Utilisateur non administrateur.");
+      await supabase.auth.signOut();
+      showLogin();
+      showError(
+        "Ce compte n'est pas autorisé comme administrateur."
+      );
+      return false;
+    }
+
+    console.log("✅ Administrateur confirmé :", session.user.email);
+
+    hideLogin();
+
+    window.BRANSERV_ADMIN_AUTH = {
+      client: supabase,
+      session: session,
+      user: session.user
+    };
+
+    return true;
+  }
+
+  async function setupLoginForm() {
+    const form = document.getElementById("branservLoginForm");
+    if (!form) return;
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const email =
+        document.getElementById("branservEmail").value.trim();
+
+      const password =
+        document.getElementById("branservPassword").value;
+
+      const button =
+        document.getElementById("branservLoginButton");
+
+      if (!email || !password) {
+        showError("Veuillez remplir les deux champs.");
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Connexion...";
+
+      showError("");
+
+      try {
+        await login(email, password);
+
+        const ok = await checkAdmin();
+
+        if (!ok) {
+          button.disabled = false;
+          button.textContent = "Se connecter";
+          return;
+        }
+
+        location.reload();
+
+      } catch (error) {
+        console.error("❌ Connexion impossible :", error);
+
+        let message = error.message || "Connexion impossible.";
+
+        if (
+          message.toLowerCase().includes("invalid login credentials")
+        ) {
+          message = "Email ou mot de passe incorrect.";
+        }
+
+        showError(message);
+
+        button.disabled = false;
+        button.textContent = "Se connecter";
+      }
+    });
+  }
+
+  async function init() {
+    try {
+      await setupLoginForm();
+      await checkAdmin();
+    } catch (error) {
+      console.error("Erreur initialisation admin :", error);
+      showLogin();
+      showError(error.message);
+    }
+  }
+
+  window.branservAdminLogout = async function () {
+    try {
+      const supabase = getClient();
+      await supabase.auth.signOut();
+      location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  window.branservSupabase = getClient();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+
+
+/* =========================================================
+   GESTION DES PRODUITS BRANSERV
+   ========================================================= */
+
+async function addProduct() {
+  try {
+    const supabase = getClient();
+
+    // Vérifier que l'administrateur est bien connecté
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      alert("❌ Session administrateur absente. Reconnecte-toi.");
+      return;
+    }
+
+    const name = document.getElementById("name").value.trim();
+    const category = document.getElementById("category").value.trim();
+
+    const price = Number(document.getElementById("price").value);
+    const purchasePrice = Number(
+      document.getElementById("purchasePrice").value || 0
+    );
+    const oldPrice = Number(
+      document.getElementById("oldPrice").value || 0
+    );
+    const stock = Number(
+      document.getElementById("stock").value || 0
+    );
+
+    const image = document.getElementById("image").value.trim();
+
+    const promo = document.getElementById("promo").checked;
+    const active = document.getElementById("active").checked;
+
+    if (!name) {
+      alert("Veuillez saisir le nom du produit.");
+      return;
+    }
+
+    if (!category) {
+      alert("Veuillez saisir la catégorie.");
+      return;
+    }
+
+    if (!Number.isFinite(price) || price <= 0) {
+      alert("Veuillez saisir un prix de vente valide.");
+      return;
+    }
+
+    if (!Number.isFinite(stock) || stock < 0) {
+      alert("Veuillez saisir un stock valide.");
+      return;
+    }
+
+    const product = {
+      name: name,
+      category: category,
+      price: price,
+      purchase_price: purchasePrice,
+      old_price: oldPrice || null,
+      stock: stock,
+      promo: promo,
+      active: active,
+      image_url: image || null,
+      description: null
+    };
+
+    console.log("📦 Ajout produit :", product);
+
+    const { data, error } = await supabase
+      .from("products")
+      .insert(product)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Erreur Supabase :", error);
+      alert("❌ Impossible d'ajouter le produit :\n" + error.message);
+      return;
+    }
+
+    console.log("✅ Produit créé :", data);
+
+    alert("✅ Produit ajouté avec succès !");
+
+    // Vider le formulaire
+    document.getElementById("name").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("purchasePrice").value = "";
+    document.getElementById("oldPrice").value = "";
+    document.getElementById("stock").value = "";
+    document.getElementById("image").value = "";
+    document.getElementById("promo").checked = false;
+    document.getElementById("active").checked = true;
+
+    await loadAdminProducts();
+
+  } catch (error) {
+    console.error("❌ Erreur addProduct :", error);
+    alert("❌ Erreur : " + error.message);
+  }
+}
+
+async function loadAdminProducts() {
+  const box = document.getElementById("adminProducts");
+
+  if (!box) return;
+
+  try {
+    const supabase = getClient();
+
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      box.innerHTML =
+        "<p>Connectez-vous pour gérer les produits.</p>";
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Erreur chargement produits :", error);
+      box.innerHTML =
+        "<p>❌ Impossible de charger les produits.</p>";
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      box.innerHTML =
+        "<p>Aucun produit enregistré.</p>";
+      return;
+    }
+
+    box.innerHTML = data.map(product => `
+      <div class="admin-card" style="margin-top:15px;">
+        <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap;">
+
+          ${
+            product.image_url
+              ? `<img
+                  src="${product.image_url}"
+                  alt=""
+                  style="
+                    width:90px;
+                    height:90px;
+                    object-fit:cover;
+                    border-radius:12px;
+                  "
+                >`
+              : ""
+          }
+
+          <div style="flex:1;min-width:220px;">
+            <h3>${escapeHtml(product.name || "")}</h3>
+
+            <p>
+              ${escapeHtml(product.category || "")}
+            </p>
+
+            <p>
+              💰 ${Number(product.price || 0).toLocaleString("fr-FR")} FCFA
+            </p>
+
+            <p>
+              📦 Stock : ${Number(product.stock || 0)}
+            </p>
+
+            <p>
+              ${
+                product.promo
+                  ? "🔥 En promotion"
+                  : "Produit normal"
+              }
+              ${
+                product.active
+                  ? " · 🟢 Visible"
+                  : " · 🔴 Masqué"
+              }
+            </p>
+          </div>
+
+        </div>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    box.innerHTML =
+      "<p>❌ Erreur lors du chargement.</p>";
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// Exposer la fonction au bouton onclick="addProduct()"
+window.addProduct = addProduct;
+window.loadAdminProducts = loadAdminProducts;
+
+const previousInit = window.branservAdminProductsInit;
+
+window.branservAdminProductsInit = async function () {
+  await loadAdminProducts();
+};
+

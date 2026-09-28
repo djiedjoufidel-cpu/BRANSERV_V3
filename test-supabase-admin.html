@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Test Supabase BRANSERV</title>
+</head>
+
+<body>
+<h2>Diagnostic Supabase BRANSERV</h2>
+<pre id="result">Test en cours...</pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const result = document.getElementById("result");
+
+result.textContent =
+"1. CDN Supabase : " +
+(typeof window.supabase !== "undefined" ? "OK" : "ERREUR") +
+"\n";
+
+window.BRANSERV_SUPABASE_URL =
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+window.BRANSERV_SUPABASE_KEY =
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+result.textContent +=
+"2. URL : " +
+(window.BRANSERV_SUPABASE_URL ? "OK" : "ERREUR") +
+"\n";
+
+result.textContent +=
+"3. Clé : " +
+(window.BRANSERV_SUPABASE_KEY ? "OK" : "ERREUR") +
+"\n";
+
+if (window.supabase) {
+
+    try {
+
+        window.branservSupabase =
+            window.supabase.createClient(
+                window.BRANSERV_SUPABASE_URL,
+                window.BRANSERV_SUPABASE_KEY
+            );
+
+        result.textContent +=
+        "4. Client Supabase : OK\n\n";
+
+        result.textContent +=
+        "🎉 SUPABASE EST CORRECTEMENT INITIALISÉ.";
+
+    } catch (e) {
+
+        result.textContent +=
+        "4. Client Supabase : ERREUR\n\n" +
+        e.message;
+
+    }
+
+} else {
+
+    result.textContent +=
+    "4. Client Supabase : ERREUR\n\n" +
+    "Le CDN Supabase ne se charge pas.";
+
+}
+</script>
+
+</body>
+</html>

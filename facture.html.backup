@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Facture - BRANSERV</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="no-print">
+<a class="logo" href="index.html">BRANSERV</a>
+<nav>
+<a href="index.html">Boutique</a>
+<a href="admin.html">Admin</a>
+</nav>
+</header>
+
+<main class="section">
+
+<div id="invoice"></div>
+
+<div class="invoice-actions no-print">
+<button class="btn" onclick="window.print()">
+📥 Télécharger / Imprimer
+</button>
+</div>
+
+</main>
+
+<script src="app.js"></script>
+<script src="facture.js"></script>
+</body>
+</html>

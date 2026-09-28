@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BRANSERV - Gestion Services</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  background:#f4f5f7;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:25px 15px 50px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:18px;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.status{
+  padding:8px 12px;
+  border-radius:20px;
+  font-weight:bold;
+}
+
+.new{
+  background:#fff3cd;
+}
+
+.progress{
+  background:#dbeafe;
+}
+
+.done{
+  background:#dcfce7;
+}
+
+.cancelled{
+  background:#fee2e2;
+}
+
+button{
+  padding:12px 15px;
+  border:0;
+  border-radius:10px;
+  font-weight:bold;
+  margin:4px;
+  background:#ffd400;
+}
+
+button.red{
+  background:#dc2626;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 style="color:#ffd400;text-align:center">
+    BRANSERV ADMIN
+  </h1>
+
+  <nav style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:15px">
+    <a href="admin.html">Dashboard</a>
+    <a href="commandes.html">Commandes</a>
+    <a href="ventes.html">Ventes</a>
+    <a href="services-admin.html">Services</a>
+    <a href="index.html">Boutique</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <h1>🛠️ Demandes de services</h1>
+
+  <div id="requests"></div>
+
+</main>
+
+<script>
+
+const KEY =
+"branserv_service_requests";
+
+function getRequests(){
+
+  return JSON.parse(
+    localStorage.getItem(KEY)||"[]"
+  );
+
+}
+
+function saveRequests(data){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(data)
+  );
+
+}
+
+function statusLabel(status){
+
+  const map={
+
+    new:["🟡 Nouvelle","new"],
+
+    progress:["🔵 En cours","progress"],
+
+    done:["🟢 Terminée","done"],
+
+    cancelled:["🔴 Annulée","cancelled"]
+
+  };
+
+  return map[status] ||
+    ["⚪ "+status,""];
+
+}
+
+function money(value){
+
+  return Number(value||0)
+    .toLocaleString("fr-FR")+
+    " FCFA";
+
+}
+
+function render(){
+
+  const requests =
+    getRequests();
+
+  const box =
+    document.getElementById("requests");
+
+  if(!requests.length){
+
+    box.innerHTML=`
+      <div class="card">
+        <h2>Aucune demande</h2>
+        <p>
+          Les demandes de services apparaîtront ici.
+        </p>
+      </div>
+    `;
+
+    return;
+
+  }
+
+  box.innerHTML =
+    requests.map(r=>{
+
+      const status =
+        statusLabel(r.status);
+
+      return `
+
+      <div class="card">
+
+        <div class="header">
+
+          <div>
+
+            <h2>
+              ${r.service}
+            </h2>
+
+            <small>
+              ${r.id}
+            </small>
+
+          </div>
+
+          <span class="status ${status[1]}">
+            ${status[0]}
+          </span>
+
+        </div>
+
+        <hr>
+
+        <p>
+          👤 <strong>${r.name}</strong>
+        </p>
+
+        <p>
+          📱 ${r.phone}
+        </p>
+
+        <p>
+          📍 ${r.city}
+          ${r.location ? " - "+r.location : ""}
+        </p>
+
+        <p>
+          📅 ${r.date || "À définir"}
+        </p>
+
+        <p>
+          📝 ${r.details}
+        </p>
+
+        <div>
+
+          ${
+            r.status==="new"
+            ? `
+              <button
+                onclick="changeStatus('${r.id}','progress')">
+                🔵 Prendre en charge
+              </button>
+
+              <button
+                class="red"
+                onclick="changeStatus('${r.id}','cancelled')">
+                ❌ Annuler
+              </button>
+            `
+            : ""
+          }
+
+          ${
+            r.status==="progress"
+            ? `
+              <button
+                onclick="changeStatus('${r.id}','done')">
+                ✅ Marquer terminée
+              </button>
+            `
+            : ""
+          }
+
+        </div>
+
+      </div>
+
+      `;
+
+    }).join("");
+
+}
+
+function changeStatus(id,status){
+
+  const requests =
+    getRequests();
+
+  const request =
+    requests.find(
+      r => r.id===id
+    );
+
+  if(!request)return;
+
+  request.status=status;
+
+  request.updatedAt =
+    new Date().toISOString();
+
+  saveRequests(requests);
+
+  render();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>

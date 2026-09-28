@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migration BRANSERV → Supabase</title>
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f5f5;
+  padding:20px;
+}
+.card{
+  max-width:700px;
+  margin:auto;
+  background:white;
+  padding:25px;
+  border-radius:18px;
+}
+button{
+  padding:14px 20px;
+  border:0;
+  border-radius:10px;
+  background:#111;
+  color:white;
+  font-weight:bold;
+}
+#log{
+  margin-top:20px;
+  white-space:pre-wrap;
+  background:#111;
+  color:#0f0;
+  padding:15px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🚀 BRANSERV → Supabase</h1>
+
+<p>
+Cette page va uniquement <b>lire</b> tes produits LocalStorage.
+Elle ne supprimera aucune donnée locale.
+</p>
+
+<button onclick="analyser()">Analyser mes produits</button>
+
+<div id="log">En attente...</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function verifierImages() {
+  const produits = JSON.parse(localStorage.getItem("branserv_products") || "[]");
+  const result = document.getElementById("result");
+
+  if (!produits.length) {
+    result.innerHTML = `
+      <div style="padding:15px;background:#fff3cd;border-radius:10px;">
+        ⚠️ Aucun produit trouvé dans <b>branserv_products</b>.
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <h2>🖼️ Vérification des images</h2>
+    <p>
+      ${produits.length} produit(s) analysé(s).
+    </p>
+    <div style="display:grid;gap:12px;">
+  `;
+
+  produits.forEach((p, index) => {
+    const image = String(p.image || "").trim();
+
+    let type = "";
+    let couleur = "";
+    let detail = "";
+
+    if (!image) {
+      type = "🔴 Aucune image";
+      couleur = "#f8d7da";
+      detail = "Le champ image est vide.";
+    }
+    else if (image.startsWith("data:image/")) {
+      type = "🟢 Image locale";
+      couleur = "#d1e7dd";
+
+      const match = image.match(/^data:image\/([^;]+)/);
+      const format = match ? match[1].toUpperCase() : "INCONNU";
+
+      const tailleKo = Math.round((image.length * 3 / 4) / 1024);
+
+      detail = `
+        Format : <b>${format}</b><br>
+        Taille approximative : <b>${tailleKo} Ko</b><br>
+        Stockée directement dans le navigateur.
+      `;
+    }
+    else if (
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      type = "🔵 URL";
+      couleur = "#cfe2ff";
+
+      detail = `
+        L'image est enregistrée comme une adresse web.<br>
+        <small style="word-break:break-all;">${escapeHtml(image)}</small>
+      `;
+    }
+    else if (
+      image.startsWith("blob:") ||
+      image.startsWith("file:")
+    ) {
+      type = "🟠 Format local temporaire";
+      couleur = "#ffe5b4";
+
+      detail = `
+        Cette image utilise un format temporaire
+        (${image.substring(0, image.indexOf(":"))}:).
+        Elle devra être convertie avant migration vers Supabase.
+      `;
+    }
+    else {
+      type = "🟠 Format inconnu";
+      couleur = "#ffe5b4";
+
+      detail = `
+        Une valeur existe mais son format n'est pas reconnu.<br>
+        <small style="word-break:break-all;">${escapeHtml(image.substring(0, 180))}</small>
+      `;
+    }
+
+    html += `
+      <div style="
+        padding:15px;
+        background:${couleur};
+        border-radius:12px;
+        border:1px solid rgba(0,0,0,.08);
+      ">
+        <div style="font-size:18px;font-weight:bold;">
+          ${index + 1}. ${escapeHtml(p.name || "Produit sans nom")}
+        </div>
+
+        <div style="margin-top:6px;">
+          <b>Type :</b> ${type}
+        </div>
+
+        <div style="margin-top:6px;font-size:14px;">
+          ${detail}
+        </div>
+
+        ${
+          image
+            ? `<div style="margin-top:10px;">
+                <img
+                  src="${escapeAttribute(image)}"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                  style="
+                    width:100px;
+                    height:80px;
+                    object-fit:cover;
+                    border-radius:8px;
+                    background:#eee;
+                  "
+                >
+                <span style="display:none;color:#b02a37;">
+                  ⚠️ Impossible d'afficher cette image
+                </span>
+              </div>`
+            : ""
+        }
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  result.innerHTML = html;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
+</script>
+
+<script>
+const SUPABASE_URL =
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+const supabaseClient =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+function log(text){
+  document.getElementById("log").textContent +=
+  "\n" + text;
+}
+
+function analyser(){
+
+  document.getElementById("log").textContent="";
+
+  const raw =
+    localStorage.getItem("branserv_products");
+
+  if(!raw){
+
+    log("❌ Aucun branserv_products trouvé.");
+
+    return;
+  }
+
+  let products;
+
+  try{
+    products=JSON.parse(raw);
+  }catch(e){
+
+    log("❌ Données produits invalides.");
+
+    return;
+  }
+
+  log("✅ LocalStorage trouvé.");
+  log("📦 Nombre de produits : "+products.length);
+  log("");
+
+  products.forEach((p,i)=>{
+
+    log(
+`#${i+1}
+ID local : ${p.id}
+Nom : ${p.name}
+Catégorie : ${p.category}
+Prix : ${p.price}
+Prix achat : ${p.purchasePrice||0}
+Ancien prix : ${p.oldPrice||0}
+Stock : ${p.stock||0}
+Promotion : ${p.promo ? "Oui":"Non"}
+Actif : ${p.active !== false ? "Oui":"Non"}
+Image : ${p.image ? "Présente":"Aucune"}
+-------------------------`
+    );
+
+  });
+
+  log("");
+  log("🟢 ANALYSE TERMINÉE.");
+  log("Aucune donnée n'a été modifiée.");
+}
+
+function verifierImages() {
+  const produits = JSON.parse(localStorage.getItem("branserv_products") || "[]");
+  const result = document.getElementById("result");
+
+  if (!produits.length) {
+    result.innerHTML = `
+      <div style="padding:15px;background:#fff3cd;border-radius:10px;">
+        ⚠️ Aucun produit trouvé dans <b>branserv_products</b>.
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <h2>🖼️ Vérification des images</h2>
+    <p>
+      ${produits.length} produit(s) analysé(s).
+    </p>
+    <div style="display:grid;gap:12px;">
+  `;
+
+  produits.forEach((p, index) => {
+    const image = String(p.image || "").trim();
+
+    let type = "";
+    let couleur = "";
+    let detail = "";
+
+    if (!image) {
+      type = "🔴 Aucune image";
+      couleur = "#f8d7da";
+      detail = "Le champ image est vide.";
+    }
+    else if (image.startsWith("data:image/")) {
+      type = "🟢 Image locale";
+      couleur = "#d1e7dd";
+
+      const match = image.match(/^data:image\/([^;]+)/);
+      const format = match ? match[1].toUpperCase() : "INCONNU";
+
+      const tailleKo = Math.round((image.length * 3 / 4) / 1024);
+
+      detail = `
+        Format : <b>${format}</b><br>
+        Taille approximative : <b>${tailleKo} Ko</b><br>
+        Stockée directement dans le navigateur.
+      `;
+    }
+    else if (
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      type = "🔵 URL";
+      couleur = "#cfe2ff";
+
+      detail = `
+        L'image est enregistrée comme une adresse web.<br>
+        <small style="word-break:break-all;">${escapeHtml(image)}</small>
+      `;
+    }
+    else if (
+      image.startsWith("blob:") ||
+      image.startsWith("file:")
+    ) {
+      type = "🟠 Format local temporaire";
+      couleur = "#ffe5b4";
+
+      detail = `
+        Cette image utilise un format temporaire
+        (${image.substring(0, image.indexOf(":"))}:).
+        Elle devra être convertie avant migration vers Supabase.
+      `;
+    }
+    else {
+      type = "🟠 Format inconnu";
+      couleur = "#ffe5b4";
+
+      detail = `
+        Une valeur existe mais son format n'est pas reconnu.<br>
+        <small style="word-break:break-all;">${escapeHtml(image.substring(0, 180))}</small>
+      `;
+    }
+
+    html += `
+      <div style="
+        padding:15px;
+        background:${couleur};
+        border-radius:12px;
+        border:1px solid rgba(0,0,0,.08);
+      ">
+        <div style="font-size:18px;font-weight:bold;">
+          ${index + 1}. ${escapeHtml(p.name || "Produit sans nom")}
+        </div>
+
+        <div style="margin-top:6px;">
+          <b>Type :</b> ${type}
+        </div>
+
+        <div style="margin-top:6px;font-size:14px;">
+          ${detail}
+        </div>
+
+        ${
+          image
+            ? `<div style="margin-top:10px;">
+                <img
+                  src="${escapeAttribute(image)}"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                  style="
+                    width:100px;
+                    height:80px;
+                    object-fit:cover;
+                    border-radius:8px;
+                    background:#eee;
+                  "
+                >
+                <span style="display:none;color:#b02a37;">
+                  ⚠️ Impossible d'afficher cette image
+                </span>
+              </div>`
+            : ""
+        }
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  result.innerHTML = html;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
+</script>
+
+</body>
+</html>

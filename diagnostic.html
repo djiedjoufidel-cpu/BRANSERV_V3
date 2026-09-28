@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnostic BRANSERV</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f3f4f6;
+  padding:20px;
+}
+h1{
+  color:#111;
+}
+.card{
+  background:white;
+  padding:18px;
+  margin:12px 0;
+  border-radius:15px;
+  box-shadow:0 3px 12px #ddd;
+}
+pre{
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.key{
+  font-size:20px;
+  font-weight:bold;
+}
+.good{
+  color:green;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔎 Diagnostic BRANSERV</h1>
+
+<p>
+Cette page ne modifie aucune donnée.
+Elle affiche seulement ce qui est actuellement enregistré dans le navigateur.
+</p>
+
+<div id="result"></div>
+
+<script>
+
+const result =
+document.getElementById("result");
+
+let html = "";
+
+if(localStorage.length === 0){
+
+  html = `
+    <div class="card">
+      ❌ Le localStorage est vide.
+    </div>
+  `;
+
+}else{
+
+  for(let i=0;i<localStorage.length;i++){
+
+    const key =
+      localStorage.key(i);
+
+    const raw =
+      localStorage.getItem(key);
+
+    let parsed = null;
+
+    try{
+      parsed = JSON.parse(raw);
+    }catch(e){}
+
+    let description = "";
+
+    if(Array.isArray(parsed)){
+
+      description =
+        "Tableau : " +
+        parsed.length +
+        " élément(s)";
+
+      if(parsed.length){
+
+        const first =
+          parsed[0];
+
+        description +=
+          "<br><br>Premier élément :<br>" +
+          "<pre>" +
+          escapeHTML(
+            JSON.stringify(
+              first,
+              null,
+              2
+            )
+          ) +
+          "</pre>";
+      }
+
+    }else if(parsed && typeof parsed === "object"){
+
+      description =
+        "Objet<br><pre>" +
+        escapeHTML(
+          JSON.stringify(
+            parsed,
+            null,
+            2
+          )
+        ) +
+        "</pre>";
+
+    }else{
+
+      description =
+        "Valeur : " +
+        escapeHTML(raw);
+
+    }
+
+    html += `
+
+      <div class="card">
+
+        <div class="key">
+          🔑 ${escapeHTML(key)}
+        </div>
+
+        <p class="good">
+          ${description}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+result.innerHTML = html;
+
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+</script>
+
+</body>
+</html>

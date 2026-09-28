@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Supabase BRANSERV</title>
+</head>
+
+<body style="font-family:Arial;padding:25px">
+
+<h1>🔐 Test Supabase BRANSERV</h1>
+
+<div id="result">⏳ Connexion en cours...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(async function () {
+
+  const result = document.getElementById("result");
+
+  try {
+
+    if (!window.supabase) {
+      throw new Error(
+        "La bibliothèque Supabase ne s'est pas chargée. Vérifie Internet."
+      );
+    }
+
+    const SUPABASE_URL =
+      "https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    console.log("Client Supabase créé :", client);
+
+    const { data, error } =
+      await client
+      .from("products")
+      .select("id")
+      .limit(1);
+
+    if (error) {
+      throw error;
+    }
+
+    result.innerHTML = `
+      <div style="
+        padding:20px;
+        background:#d1fae5;
+        border-radius:15px;
+      ">
+        <h2>✅ CONNEXION RÉUSSIE</h2>
+        <p>BRANSERV communique correctement avec Supabase.</p>
+        <p>La table <b>products</b> est accessible.</p>
+      </div>
+    `;
+
+  } catch (error) {
+
+    console.error("SUPABASE ERROR:", error);
+
+    result.innerHTML = `
+      <div style="
+        padding:20px;
+        background:#fee2e2;
+        border-radius:15px;
+      ">
+        <h2>❌ ERREUR</h2>
+        <p><b>${error.message}</b></p>
+      </div>
+    `;
+
+  }
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Récupération BRANSERV</title>
+<style>
+body{
+font-family:Arial;
+background:#f3f4f6;
+padding:20px;
+}
+.card{
+background:white;
+padding:20px;
+border-radius:18px;
+margin-bottom:20px;
+box-shadow:0 3px 15px #ddd;
+}
+button{
+background:#ffd400;
+border:0;
+padding:16px 20px;
+border-radius:12px;
+font-weight:bold;
+font-size:16px;
+}
+.product{
+padding:12px 0;
+border-bottom:1px solid #ddd;
+}
+.warning{
+background:#fff3cd;
+padding:15px;
+border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔄 Récupération BRANSERV</h1>
+
+<div class="warning">
+Cette opération récupère les produits présents dans les commandes.
+Elle ne supprime pas les commandes.
+</div>
+
+<div id="result"></div>
+
+<button onclick="recover()">
+✅ RÉCUPÉRER LES PRODUITS
+</button>
+
+<script>
+
+const ordersKey="branserv_orders";
+const productsKey="branserv_products";
+
+function money(n){
+return Number(n||0).toLocaleString("fr-FR")+" FCFA";
+}
+
+function getOrders(){
+
+try{
+return JSON.parse(
+localStorage.getItem(ordersKey)||"[]"
+);
+}catch(e){
+return [];
+}
+
+}
+
+function getProducts(){
+
+try{
+return JSON.parse(
+localStorage.getItem(productsKey)||"[]"
+);
+}catch(e){
+return [];
+}
+
+}
+
+function show(){
+
+const orders=getOrders();
+const products=getProducts();
+
+const map={};
+
+/* Produits actuellement présents */
+
+products.forEach(p=>{
+
+if(p && p.name){
+
+map[p.name.trim().toLowerCase()] = {
+name:p.name,
+category:p.category||"Produit",
+price:Number(p.price||0),
+purchasePrice:Number(p.purchasePrice||0),
+oldPrice:Number(p.oldPrice||0),
+stock:Number(p.stock||0),
+image:p.image||"",
+promo:!!p.promo,
+active:p.active!==false,
+id:p.id
+};
+
+}
+
+});
+
+/* Produits retrouvés dans les commandes */
+
+orders.forEach(order=>{
+
+(order.items||[]).forEach(item=>{
+
+const name=
+String(item.productName||"").trim();
+
+if(!name)return;
+
+const key=name.toLowerCase();
+
+if(!map[key]){
+
+map[key]={
+name:name,
+category:"Produit",
+price:Number(item.unitPrice||0),
+purchasePrice:0,
+oldPrice:0,
+stock:0,
+image:"",
+promo:false,
+active:true,
+id:Date.now()+Math.floor(Math.random()*100000)
+};
+
+}
+
+});
+
+});
+
+const recovered=Object.values(map);
+
+document.getElementById("result").innerHTML=`
+
+<div class="card">
+
+<h2>Produits retrouvés : ${recovered.length}</h2>
+
+${recovered.map(p=>`
+
+<div class="product">
+
+<strong>🛍️ ${p.name}</strong><br>
+
+Prix : ${money(p.price)}<br>
+
+Stock actuel : ${p.stock}<br>
+
+PA privé : ${money(p.purchasePrice)}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+
+}
+
+function recover(){
+
+const orders=getOrders();
+const current=getProducts();
+
+const map={};
+
+/* Garder les produits existants */
+
+current.forEach(p=>{
+
+if(!p || !p.name)return;
+
+map[p.name.trim().toLowerCase()]=p;
+
+});
+
+/* Récupérer depuis les commandes */
+
+orders.forEach(order=>{
+
+(order.items||[]).forEach(item=>{
+
+const name=
+String(item.productName||"").trim();
+
+if(!name)return;
+
+const key=name.toLowerCase();
+
+if(!map[key]){
+
+map[key]={
+
+id:
+Number(item.productId) ||
+Date.now()+Math.floor(Math.random()*100000),
+
+name:name,
+
+category:"Produit",
+
+price:Number(item.unitPrice||0),
+
+purchasePrice:0,
+
+oldPrice:0,
+
+stock:0,
+
+image:"https://via.placeholder.com/600x500?text=BRANSERV",
+
+promo:false,
+
+active:true
+
+};
+
+}
+
+});
+
+});
+
+const recovered=Object.values(map);
+
+localStorage.setItem(
+productsKey,
+JSON.stringify(recovered)
+);
+
+alert(
+"✅ Récupération terminée !\n\n"+
+recovered.length+
+" produits sont maintenant enregistrés.\n\n"+
+"Les commandes ont été conservées."
+);
+
+show();
+
+}
+
+show();
+
+</script>
+
+</body>
+</html>

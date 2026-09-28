@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnostic images BRANSERV</title>
+<style>
+body{font-family:Arial;padding:20px;background:#f4f4f4}
+.card{background:white;padding:15px;margin:12px 0;border-radius:12px}
+.ok{color:green}.bad{color:red}
+</style>
+</head>
+<body>
+
+<h1>🔎 Diagnostic réel des images</h1>
+<div id="result">Analyse...</div>
+
+<script>
+const produits = JSON.parse(
+  localStorage.getItem("branserv_products") || "[]"
+);
+
+let html = "";
+
+produits.forEach((p,i) => {
+  const image = p.image;
+  const type = typeof image;
+  const texte = String(image || "");
+
+  let debut = texte.substring(0,80);
+
+  let nature = "❓ Inconnue";
+
+  if (texte.startsWith("data:image/")) {
+    nature = "🟢 DATA IMAGE";
+  } else if (
+    texte.startsWith("http://") ||
+    texte.startsWith("https://")
+  ) {
+    nature = "🔵 URL";
+  } else if (texte.startsWith("blob:")) {
+    nature = "🟠 BLOB";
+  } else if (!texte) {
+    nature = "🔴 VIDE";
+  }
+
+  html += `
+    <div class="card">
+      <h2>#${i+1} — ${p.name}</h2>
+      <p><b>Type JavaScript :</b> ${type}</p>
+      <p><b>Longueur :</b> ${texte.length} caractères</p>
+      <p><b>Nature :</b> <span class="${nature.includes("🟢") ? "ok" : "bad"}">${nature}</span></p>
+      <p><b>Début de la valeur :</b></p>
+      <code>${debut.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code>
+    </div>
+  `;
+});
+
+document.getElementById("result").innerHTML =
+  html || "❌ Aucun produit";
+</script>
+
+</body>
+</html>

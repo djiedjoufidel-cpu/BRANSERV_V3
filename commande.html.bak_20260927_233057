@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commande - BRANSERV</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<a class="logo" href="index.html">BRANSERV</a>
+<nav>
+<a href="index.html">Accueil</a>
+<a href="produits.html">Produits</a>
+<a href="panier.html">Panier</a>
+<a href="admin.html">Admin</a>
+</nav>
+</header>
+
+<main class="section">
+
+<div class="form-card">
+<h1>Finaliser ma commande</h1>
+
+<input id="customerName" placeholder="Nom complet">
+<input id="customerPhone" placeholder="Numéro de téléphone">
+
+<select id="delivery">
+<option value="delivery">Livraison</option>
+<option value="pickup">Retrait sur place</option>
+</select>
+
+<input id="city" placeholder="Ville">
+<input id="district" placeholder="Quartier">
+<input id="address" placeholder="Adresse / lieu de livraison">
+
+<textarea id="comment"
+placeholder="Commentaire ou précision"></textarea>
+
+<div id="orderSummary"></div>
+
+<button class="btn whatsapp"
+onclick="submitOrder()">
+Envoyer la commande sur WhatsApp
+</button>
+
+</div>
+
+</main>
+
+<footer>
+<h2>BRANSERV</h2>
+</footer>
+
+<script src="app.js"></script>
+<script src="commande.js"></script>
+</body>
+</html>

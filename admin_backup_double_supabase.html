@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administration - BRANSERV</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<a class="logo" href="admin.html">BRANSERV ADMIN</a>
+<nav>
+<a href="index.html">Boutique</a>
+<a href="admin.html">Dashboard</a>
+<a href="commandes.html">Commandes</a>
+<a href="ventes.html">Ventes</a>
+</nav>
+</header>
+
+<main class="section">
+
+<h1>Tableau de bord</h1>
+
+<div id="stats" class="stats"></div>
+
+<div class="quick-actions">
+<a class="btn" href="commandes.html">📦 Commandes</a>
+<a class="btn" href="ventes.html">💰 Ventes</a>
+<a class="btn" href="#productsAdmin">🛍️ Produits</a>
+</div>
+
+<div class="admin-card">
+<h2>Ajouter un produit</h2>
+
+<input id="name" placeholder="Nom du produit">
+<input id="category" placeholder="Catégorie">
+<input id="price" type="number" placeholder="Prix de vente">
+<input id="purchasePrice" type="number" placeholder="Prix d'achat privé">
+<input id="oldPrice" type="number" placeholder="Ancien prix">
+<input id="stock" type="number" min="0" placeholder="Quantité / stock">
+<input id="image" placeholder="URL de l'image">
+
+<label class="check">
+<input id="promo" type="checkbox">
+Produit en promotion
+</label>
+
+<label class="check">
+<input id="active" type="checkbox" checked>
+Produit visible
+</label>
+
+<button class="btn" onclick="addProduct()">Ajouter</button>
+</div>
+
+<h2 id="productsAdmin">Produits et stocks</h2>
+<div id="adminProducts"></div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+console.log("Supabase CDN =", typeof window.supabase);
+console.log("Supabase URL =", window.BRANSERV_SUPABASE_URL ? "OK" : "MANQUANTE");
+
+if (window.supabase && window.BRANSERV_SUPABASE_URL && window.BRANSERV_SUPABASE_KEY) {
+    window.branservSupabase = window.supabase.createClient(
+        window.BRANSERV_SUPABASE_URL,
+        window.BRANSERV_SUPABASE_KEY
+    );
+    console.log("✅ BRANSERV Supabase initialisé");
+} else {
+    console.error("❌ Impossible d'initialiser Supabase");
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.BRANSERV_SUPABASE_URL =
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+window.BRANSERV_SUPABASE_KEY =
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+window.branservSupabase =
+window.supabase.createClient(
+    window.BRANSERV_SUPABASE_URL,
+    window.BRANSERV_SUPABASE_KEY
+);
+
+console.log("✅ BRANSERV Supabase initialisé directement");
+</script>
+
+<script src="app.js"></script>
+<script src="admin.js"></script>
+
+</body>
+</html>

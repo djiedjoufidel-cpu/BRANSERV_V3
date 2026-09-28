@@ -1,0 +1,117 @@
+function loadInvoice(){
+
+let id=new URLSearchParams(location.search).get("id");
+
+let order=getOrders().find(x=>x.id===id);
+
+let box=document.getElementById("invoice");
+
+if(!order){
+
+box.innerHTML="<h1>Facture introuvable</h1>";
+return;
+}
+
+box.innerHTML=`
+
+<div class="invoice">
+
+<div class="invoice-top">
+
+<div>
+<h1>BRANSERV</h1>
+<p>Yaoundé, Cameroun</p>
+<p>WhatsApp : +237 651 715 307</p>
+<p>djiedjoufidel@gmail.com</p>
+</div>
+
+<div class="invoice-title">
+<h2>FACTURE</h2>
+<strong>${order.orderNumber}</strong>
+</div>
+
+</div>
+
+<hr>
+
+<div class="invoice-info">
+
+<div>
+<strong>CLIENT</strong>
+<p>${order.customer.name}</p>
+<p>${order.customer.phone}</p>
+<p>${order.customer.city||""}</p>
+<p>${order.customer.district||""}</p>
+<p>${order.customer.address||""}</p>
+</div>
+
+<div>
+<strong>DATE</strong>
+<p>${dateText(order.createdAt)}</p>
+<strong>STATUT</strong>
+<p>${statusLabelInvoice(order.status)}</p>
+</div>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Produit</th>
+<th>Qté</th>
+<th>Prix</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody>
+
+${order.items.map(i=>`
+<tr>
+<td>${i.productName}</td>
+<td>${i.quantity}</td>
+<td>${money(i.unitPrice)}</td>
+<td>${money(i.lineTotal)}</td>
+</tr>
+`).join("")}
+
+</tbody>
+
+</table>
+
+<div class="invoice-total">
+
+<p>Sous-total : <strong>${money(order.subtotal)}</strong></p>
+
+<p>Livraison : <strong>${money(order.deliveryFee)}</strong></p>
+
+<h2>TOTAL : ${money(order.total)}</h2>
+
+</div>
+
+<div class="thanks">
+Merci pour votre confiance.
+<br>
+BRANSERV — Votre satisfaction, notre priorité.
+</div>
+
+</div>
+`;
+}
+
+function statusLabelInvoice(s){
+
+return {
+sold:"VENDUE",
+confirmed:"CONFIRMÉE",
+new:"NOUVELLE",
+rejected:"REJETÉE",
+abandoned:"ABANDONNÉE"
+}[s]||s;
+}
+
+document.addEventListener(
+"DOMContentLoaded",
+loadInvoice
+);

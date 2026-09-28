@@ -1,0 +1,541 @@
+const ORDERS_KEY = "brans_orders";
+const PRODUCTS_KEY = "brans_products";
+
+const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "[]");
+
+const statusNames = {
+  new: "Nouvelle",
+  confirmed: "Confirmée",
+  sold: "Vendue",
+  rejected: "Rejetée",
+  abandoned: "Abandonnée",
+  returned: "Retournée"
+};
+
+function money(n){
+  return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+}
+
+function dateText(d){
+  if(!d) return "—";
+  return new Date(d).toLocaleString("fr-FR");
+}
+
+function save(){
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+}
+
+/* Migration des anciennes ventes */
+let changed = false;
+
+orders.forEach(order => {
+
+  if(order.status === "sold" && !order.soldAt){
+    order.soldAt = order.updatedAt || order.createdAt || new Date().toISOString();
+    changed = true;
+  }
+
+  if(order.status === "returned" && !order.returnedAt){
+    order.returnedAt = order.updatedAt || order.createdAt || new Date().toISOString();
+    changed = true;
+  }
+
+});
+
+if(changed) save();
+
+function hoursRemaining(order){
+
+  if(!order.soldAt) return 0;
+
+  const soldTime = new Date(order.soldAt).getTime();
+  const limit = soldTime + (24 * 60 * 60 * 1000);
+  const remaining = limit - Date.now();
+
+  return Math.max(0, remaining);
+}
+
+function returnAllowed(order){
+
+  if(!order) return false;
+
+  if(order.status !== "sold") return false;
+
+  return hoursRemaining(order) > 0;
+}
+
+function remainingText(order){
+
+  const ms = hoursRemaining(order);
+
+  if(ms <= 0) return "Délai de retour dépassé";
+
+  const totalMinutes = Math.floor(ms / 60000);
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${hours} h ${minutes} min restantes`;
+}
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function statusClass(status){
+
+  return {
+    new:"new",
+    confirmed:"confirmed",
+    sold:"sold",
+    rejected:"rejected",
+    abandoned:"abandoned",
+    returned:"returned"
+  }[status] || "";
+}
+
+function markConfirmed(id){
+
+  const order = orders.find(o => String(o.id) === String(id));
+
+  if(!order) return;
+
+  if(order.status !== "new"){
+    alert("Cette commande ne peut plus être confirmée.");
+    return;
+  }
+
+  order.status = "confirmed";
+  order.updatedAt = new Date().toISOString();
+
+  save();
+  renderOrders();
+}
+
+function markRejected(id){
+
+  const order = orders.find(o => String(o.id) === String(id));
+
+  if(!order) return;
+
+  if(order.status === "sold" || order.status === "returned"){
+    alert("Cette vente ne peut pas être rejetée.");
+    return;
+  }
+
+  if(!confirm("Voulez-vous rejeter cette commande ?")) return;
+
+  order.status = "rejected";
+  order.updatedAt = new Date().toISOString();
+
+  save();
+  renderOrders();
+}
+
+function markAbandoned(id){
+
+  const order = orders.find(o => String(o.id) === String(id));
+
+  if(!order) return;
+
+  if(order.status === "sold" || order.status === "returned"){
+    alert("Cette vente ne peut pas être abandonnée.");
+    return;
+  }
+
+  if(!confirm("Voulez-vous marquer cette commande comme abandonnée ?")) return;
+
+  order.status = "abandoned";
+  order.updatedAt = new Date().toISOString();
+
+  save();
+  renderOrders();
+}
+
+function markSold(id){
+
+  const order = orders.find(o => String(o.id) === String(id));
+
+  if(!order) return;
+
+  if(order.status !== "new" && order.status !== "confirmed"){
+    alert("Cette commande ne peut pas être vendue.");
+    return;
+  }
+
+  /* Vérification du stock */
+  for(const item of order.items || []){
+
+    const product = products.find(
+      p => String(p.id) === String(item.productId)
+    );
+
+    if(!product){
+      alert("Produit introuvable : " + item.productName);
+      return;
+    }
+
+    if(Number(product.stock || 0) < Number(item.quantity || 0)){
+      alert(
+        "Stock insuffisant pour : " +
+        item.productName +
+        "\\nStock disponible : " +
+        product.stock +
+        "\\nQuantité demandée : " +
+        item.quantity
+      );
+      return;
+    }
+  }
+
+  if(!confirm("Confirmer la vente ? Les produits seront retirés du stock.")){
+    return;
+  }
+
+  let costTotal = 0;
+
+  for(const item of order.items || []){
+
+    const product = products.find(
+      p => String(p.id) === String(item.productId)
+    );
+
+    const purchasePrice = Number(product.purchasePrice || 0);
+
+    item.purchasePrice = purchasePrice;
+
+    product.stock =
+      Number(product.stock || 0) -
+      Number(item.quantity || 0);
+
+    costTotal +=
+      purchasePrice *
+      Number(item.quantity || 0);
+  }
+
+  order.costTotal = costTotal;
+  order.profit =
+    Number(order.total || 0) - costTotal;
+
+  order.status = "sold";
+  order.soldAt = new Date().toISOString();
+  order.updatedAt = order.soldAt;
+  order.invoice = true;
+
+  save();
+  renderOrders();
+}
+
+function returnSale(id){
+
+  const order = orders.find(
+    o => String(o.id) === String(id)
+  );
+
+  if(!order){
+    alert("Commande introuvable.");
+    return;
+  }
+
+  if(order.status !== "sold"){
+    alert("Seules les ventes peuvent être retournées.");
+    return;
+  }
+
+  if(!returnAllowed(order)){
+
+    alert(
+      "Le délai de retour de 24 heures est dépassé.\\n\\n" +
+      "Les produits ne peuvent plus être repris."
+    );
+
+    return;
+  }
+
+  const reason = prompt(
+    "Motif du retour :",
+    "Produit retourné par le client"
+  );
+
+  if(reason === null) return;
+
+  const cleanReason =
+    reason.trim() || "Produit retourné par le client";
+
+  const remaining = remainingText(order);
+
+  if(!confirm(
+    "Confirmer le retour de cette vente ?\\n\\n" +
+    "Délai restant : " + remaining + "\\n\\n" +
+    "Les produits seront remis en stock et le CA/bénéfice seront corrigés."
+  )){
+    return;
+  }
+
+  /* Remise en stock */
+  for(const item of order.items || []){
+
+    const product = products.find(
+      p => String(p.id) === String(item.productId)
+    );
+
+    if(product){
+
+      product.stock =
+        Number(product.stock || 0) +
+        Number(item.quantity || 0);
+    }
+  }
+
+  order.status = "returned";
+
+  order.returnedAt =
+    new Date().toISOString();
+
+  order.updatedAt =
+    order.returnedAt;
+
+  order.returnReason =
+    cleanReason;
+
+  order.returnedTotal =
+    Number(order.total || 0);
+
+  order.returnedCost =
+    Number(order.costTotal || 0);
+
+  order.returnedProfit =
+    Number(order.profit || 0);
+
+  order.costTotal = 0;
+  order.profit = 0;
+
+  save();
+  renderOrders();
+
+  alert(
+    "Vente retournée avec succès.\\n\\n" +
+    "Les produits ont été remis en stock."
+  );
+}
+
+function renderOrders(){
+
+  const container =
+    document.getElementById("ordersList");
+
+  if(!container) return;
+
+  if(!orders.length){
+
+    container.innerHTML = `
+      <div class="empty">
+        Aucune commande enregistrée.
+      </div>
+    `;
+
+    return;
+  }
+
+  const sorted =
+    [...orders].sort(
+      (a,b) =>
+        new Date(b.createdAt || 0) -
+        new Date(a.createdAt || 0)
+    );
+
+  container.innerHTML = sorted.map(order => {
+
+    const customer = order.customer || {};
+
+    let actions = "";
+
+    if(order.status === "new"){
+
+      actions += `
+        <button class="btn success"
+          onclick="markConfirmed('${order.id}')">
+          ✓ Confirmer
+        </button>
+      `;
+
+    }
+
+    if(
+      order.status === "new" ||
+      order.status === "confirmed"
+    ){
+
+      actions += `
+        <button class="btn primary"
+          onclick="markSold('${order.id}')">
+          💰 Marquer vendue
+        </button>
+      `;
+
+      actions += `
+        <button class="btn danger"
+          onclick="markRejected('${order.id}')">
+          ✕ Rejeter
+        </button>
+      `;
+
+      actions += `
+        <button class="btn warning"
+          onclick="markAbandoned('${order.id}')">
+          Abandonner
+        </button>
+      `;
+    }
+
+    if(order.status === "sold"){
+
+      if(returnAllowed(order)){
+
+        actions += `
+          <button class="btn return"
+            onclick="returnSale('${order.id}')">
+            ↩️ Retourner la vente
+          </button>
+
+          <div class="return-info">
+            ⏱️ ${remainingText(order)}
+          </div>
+        `;
+
+      }else{
+
+        actions += `
+          <button class="btn disabled" disabled>
+            🔒 Délai de retour dépassé
+          </button>
+        `;
+      }
+
+      actions += `
+        <a class="btn invoice"
+          href="facture.html?id=${encodeURIComponent(order.id)}">
+          🧾 Facture
+        </a>
+      `;
+    }
+
+    if(order.status === "returned"){
+
+      actions += `
+        <a class="btn invoice"
+          href="facture.html?id=${encodeURIComponent(order.id)}">
+          🧾 Facture
+        </a>
+
+        <div class="returned-box">
+          ↩️ Vente retournée<br>
+          <small>
+            ${dateText(order.returnedAt)}
+            ${order.returnReason
+              ? " — " + escapeHTML(order.returnReason)
+              : ""}
+          </small>
+        </div>
+      `;
+    }
+
+    return `
+      <article class="order-card">
+
+        <div class="order-top">
+
+          <div>
+            <strong>
+              ${escapeHTML(
+                order.orderNumber || order.id
+              )}
+            </strong>
+
+            <div class="small">
+              ${dateText(order.createdAt)}
+            </div>
+          </div>
+
+          <span class="status ${statusClass(order.status)}">
+            ${statusNames[order.status] || order.status}
+          </span>
+
+        </div>
+
+        <div class="customer">
+          <strong>
+            ${escapeHTML(customer.name || "Client")}
+          </strong>
+
+          <div>
+            ${escapeHTML(customer.phone || "")}
+          </div>
+
+          <div>
+            ${escapeHTML(customer.city || "")}
+            ${customer.district
+              ? " — " + escapeHTML(customer.district)
+              : ""}
+          </div>
+        </div>
+
+        <div class="items">
+          ${(order.items || []).map(item => `
+            <div class="item-row">
+              <span>
+                ${escapeHTML(item.productName)}
+                × ${Number(item.quantity || 0)}
+              </span>
+
+              <strong>
+                ${money(item.lineTotal)}
+              </strong>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="order-total">
+          Total :
+          <strong>${money(order.total)}</strong>
+        </div>
+
+        ${order.status === "sold" ? `
+          <div class="sold-date">
+            Vente enregistrée :
+            ${dateText(order.soldAt)}
+          </div>
+        ` : ""}
+
+        ${order.status === "returned" ? `
+          <div class="returned-total">
+            Vente annulée :
+            ${money(order.returnedTotal)}
+          </div>
+        ` : ""}
+
+        <div class="actions">
+          ${actions}
+        </div>
+
+      </article>
+    `;
+
+  }).join("");
+}
+
+document.addEventListener("DOMContentLoaded", renderOrders);
+
+window.markConfirmed = markConfirmed;
+window.markSold = markSold;
+window.markRejected = markRejected;
+window.markAbandoned = markAbandoned;
+window.returnSale = returnSale;

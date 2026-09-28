@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Facture BRANSERV</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#eef1f5;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#172033;
+}
+
+.page{
+  width:210mm;
+  min-height:297mm;
+  margin:20px auto;
+  background:#fff;
+  padding:18mm;
+  box-shadow:0 5px 25px rgba(0,0,0,.10);
+}
+
+.brand{
+  font-size:32px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.brand span{
+  font-weight:400;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding-bottom:20px;
+  border-bottom:3px solid #172033;
+}
+
+.company{
+  line-height:1.6;
+  font-size:13px;
+  color:#596273;
+}
+
+.invoice-title{
+  text-align:right;
+}
+
+.invoice-title h1{
+  margin:0;
+  font-size:28px;
+}
+
+.invoice-number{
+  font-size:13px;
+  margin-top:5px;
+  color:#596273;
+}
+
+.section-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin:25px 0;
+}
+
+.info-box{
+  border:1px solid #dfe3e8;
+  border-radius:8px;
+  padding:15px;
+}
+
+.info-title{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  font-weight:800;
+  color:#707887;
+  margin-bottom:8px;
+}
+
+.info-content{
+  font-size:14px;
+  line-height:1.7;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+thead{
+  background:#172033;
+  color:white;
+}
+
+th{
+  font-size:12px;
+  padding:12px 9px;
+  text-align:left;
+}
+
+td{
+  padding:12px 9px;
+  border-bottom:1px solid #e3e6eb;
+  font-size:13px;
+}
+
+.num{
+  text-align:right;
+}
+
+.total-box{
+  width:310px;
+  margin:25px 0 0 auto;
+}
+
+.total-line{
+  display:flex;
+  justify-content:space-between;
+  padding:7px 0;
+  font-size:14px;
+}
+
+.total-final{
+  border-top:2px solid #172033;
+  margin-top:6px;
+  padding-top:12px;
+  font-size:21px;
+  font-weight:900;
+}
+
+.return-note{
+  margin-top:45px;
+  padding:13px 15px;
+  border-top:1px solid #dfe3e8;
+  border-bottom:1px solid #dfe3e8;
+  text-align:center;
+  font-size:12px;
+  font-weight:700;
+  color:#555f70;
+}
+
+.footer{
+  margin-top:25px;
+  text-align:center;
+  color:#7b8492;
+  font-size:11px;
+  line-height:1.6;
+}
+
+.returned-banner{
+  margin-top:20px;
+  padding:12px;
+  text-align:center;
+  border:2px solid #c2410c;
+  color:#c2410c;
+  font-weight:900;
+  border-radius:7px;
+}
+
+.actions{
+  width:210mm;
+  margin:15px auto 30px;
+  display:flex;
+  gap:10px;
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:14px 18px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.back{
+  background:#e4e7eb;
+}
+
+.pdf{
+  flex:1;
+  background:#172033;
+  color:white;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
+.hidden{
+  display:none;
+}
+
+@media(max-width:800px){
+
+  body{
+    background:white;
+  }
+
+  .page{
+    width:100%;
+    min-height:auto;
+    margin:0;
+    padding:20px 15px;
+    box-shadow:none;
+  }
+
+  .header{
+    gap:15px;
+  }
+
+  .brand{
+    font-size:26px;
+  }
+
+  .invoice-title h1{
+    font-size:22px;
+  }
+
+  .section-grid{
+    grid-template-columns:1fr;
+  }
+
+  .total-box{
+    width:100%;
+  }
+
+  .actions{
+    width:100%;
+    padding:10px 15px 25px;
+    margin:0;
+  }
+
+  table{
+    font-size:11px;
+  }
+
+  th,td{
+    padding:8px 5px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page" id="facture">
+
+  <div class="header">
+
+    <div>
+
+      <div class="brand">
+        BRAN<span>SERV</span>
+      </div>
+
+      <div class="company">
+        Boutique en ligne<br>
+        Yaoundé, Cameroun<br>
+        WhatsApp : +237 651 715 307<br>
+        Email : djiedjoufidel@gmail.com
+      </div>
+
+    </div>
+
+    <div class="invoice-title">
+
+      <h1>FACTURE</h1>
+
+      <div class="invoice-number" id="invoiceNumber">
+        —
+      </div>
+
+      <div class="invoice-number" id="invoiceDate">
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="returnedBanner" class="returned-banner hidden">
+    ↩️ FACTURE RETOURNÉE / VENTE ANNULÉE
+  </div>
+
+  <div class="section-grid">
+
+    <div class="info-box">
+
+      <div class="info-title">
+        Facturé à
+      </div>
+
+      <div class="info-content" id="clientInfo">
+        —
+      </div>
+
+    </div>
+
+    <div class="info-box">
+
+      <div class="info-title">
+        Livraison
+      </div>
+
+      <div class="info-content" id="deliveryInfo">
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+  <table>
+
+    <thead>
+
+      <tr>
+        <th>Produit</th>
+        <th class="num">Qté</th>
+        <th class="num">Prix unitaire</th>
+        <th class="num">Total</th>
+      </tr>
+
+    </thead>
+
+    <tbody id="items"></tbody>
+
+  </table>
+
+  <div class="total-box">
+
+    <div class="total-line">
+      <span>Sous-total</span>
+      <strong id="subtotal">0 FCFA</strong>
+    </div>
+
+    <div class="total-line">
+      <span>Livraison</span>
+      <strong id="deliveryFee">0 FCFA</strong>
+    </div>
+
+    <div class="total-line total-final">
+      <span>TOTAL</span>
+      <strong id="total">0 FCFA</strong>
+    </div>
+
+  </div>
+
+  <div class="return-note">
+    Passé 24 h, le(s) produit(s) ne sont plus repris.
+  </div>
+
+  <div class="footer">
+    Merci pour votre confiance.<br>
+    BRANSERV — Yaoundé, Cameroun
+  </div>
+
+</div>
+
+<div class="actions">
+
+  <button class="back" onclick="history.back()">
+    ← Retour
+  </button>
+
+  <button
+    class="pdf"
+    id="pdfButton"
+    onclick="downloadInvoice()"
+  >
+    📄 Télécharger la facture PDF
+  </button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="facture.js"></script>
+
+</body>
+</html>
