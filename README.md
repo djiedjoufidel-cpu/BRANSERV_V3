@@ -1,29 +1,45 @@
-# BRANSERV V2.2
+# BRANSERV V3
 
-Version locale complète de BRANSERV.
+BRANSERV est une plateforme camerounaise de vente de produits et de services.
 
-Fonctionnalités :
+## 🛍️ Boutique
 
-- Boutique
 - Produits
 - Panier
-- Commandes WhatsApp
-- Historique des commandes
-- Statuts
-- Stocks
-- Ventes
-- Statistiques
-- Factures
-- Impression / téléchargement PDF via navigateur
+- Commandes
+- Commandes via WhatsApp
+- Gestion des stocks
+- Promotions
+- Prix de vente et prix d'achat
+- Factures PDF
+- Gestion des ventes
+- Retours de produits
 
-Pas de Supabase dans cette version.
+## 🛠️ Services
 
-## Lancer
+- 🔧 Réparation téléphone
+- 💻 Réparation ordinateur
+- 💊 Conseil en complément alimentaire
+- 💄 Conseil cosmétique
+- 🎨 Infographie
+- 💻 Services informatiques
 
-python -m http.server 8080 --bind 0.0.0.0
+## ☁️ Technologie
 
-Puis :
+- HTML
+- CSS
+- JavaScript
+- Supabase
+- Supabase Storage
+- GitHub
+- Vercel
 
-http://127.0.0.1:8080
+## 📍 Informations
 
-Les données sont enregistrées dans le navigateur avec localStorage.
+**Ville :** Yaoundé, Cameroun  
+**WhatsApp :** +237 651 715 307  
+**Email :** djiedjoufidel@gmail.com
+
+## 👨‍💻 Développement
+
+Développé par **Brandon et ChatGPT**.
