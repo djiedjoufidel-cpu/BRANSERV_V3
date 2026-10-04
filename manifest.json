@@ -1,0 +1,31 @@
+{
+  "name": "BRANSERV — Boutique & Services",
+  "short_name": "BRANSERV",
+  "description": "BRANSERV — Produits et services au Cameroun",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0b1f3a",
+  "lang": "fr-CM",
+  "dir": "ltr",
+  "categories": [
+    "shopping",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

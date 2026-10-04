@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Commande - BRANSERV</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -31,7 +32,9 @@
 <option value="pickup">Retrait sur place</option>
 </select>
 
-<input id="city" placeholder="Ville">
+<select id="city" required>
+  <option value="">Sélectionner une ville</option>
+</select>
 <input id="district" placeholder="Quartier">
 <input id="address" placeholder="Adresse / lieu de livraison">
 
@@ -55,6 +58,22 @@ Envoyer la commande sur WhatsApp
 
 <script src="app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="branserv-cities.js"></script>
 <script src="commande.js"></script>
+<script src="theme-v4.js?v=5.0"></script>
+<script src="theme-button-v4.js?v=6.0"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('✅ BRANSERV PWA activée', reg.scope))
+      .catch(err => console.error('❌ Service Worker BRANSERV :', err));
+  });
+}
+</script>
+
 </body>
 </html>

@@ -126,6 +126,108 @@ padding:20px;
 <a class="btn" href="#productsAdmin">🛍️ Produits</a>
 </div>
 
+
+
+<!-- BRANSERV SERVICES ADMIN -->
+<!-- BRANSERV VILLES & LIVRAISON -->
+<div class="admin-card" id="branservCitiesAdmin" style="margin-top:20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+    <div>
+      <h2>🏙️ Villes & frais de livraison</h2>
+      <p style="margin:5px 0;color:#777;">
+        Définissez les frais de livraison pour chaque ville.
+      </p>
+    </div>
+
+    <button
+      class="btn"
+      type="button"
+      onclick="loadBranservCitiesAdmin()">
+      🔄 Actualiser
+    </button>
+  </div>
+
+  <div id="branservCitiesList" style="margin-top:15px;">
+    <p>⏳ Chargement des villes...</p>
+  </div>
+</div>
+
+<div class="admin-card" id="branservValidatedServices" style="margin-top:20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+    <div>
+      <h2>💰 Services validés</h2>
+      <p style="margin:5px 0;color:#777;">Services terminés et enregistrés dans la comptabilité.</p>
+    </div>
+    <button class="btn" type="button" onclick="loadBranservValidatedServices()">🔄 Actualiser</button>
+  </div>
+  <div id="validatedServicesList" style="margin-top:15px;">
+    <p>⏳ Chargement des services validés...</p>
+  </div>
+</div>
+
+<div class="admin-card" id="branservServiceRequests">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+    <div>
+      <h2>🛠️ Demandes de services</h2>
+      <p style="margin:5px 0;color:#777;">
+        Gestion des demandes envoyées par les clients.
+      </p>
+    </div>
+    <button class="btn" type="button" onclick="loadBranservServiceRequests()">
+      🔄 Actualiser
+    </button>
+  </div>
+
+  <div style="margin-top:15px;">
+    <input
+      id="serviceRequestSearch"
+      type="search"
+      placeholder="🔎 Rechercher un client, téléphone ou service..."
+      style="width:100%;box-sizing:border-box;"
+    >
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:15px;">
+    <button class="btn" type="button" onclick="filterBranservServices('all')">Toutes</button>
+    <button class="btn" type="button" onclick="filterBranservServices('pending')">⏳ En attente</button>
+    <button class="btn" type="button" onclick="filterBranservServices('in_progress')">🔧 En cours</button>
+    <button class="btn" type="button" onclick="filterBranservServices('completed')">✅ Terminées</button>
+    <button class="btn" type="button" onclick="filterBranservServices('cancelled')">❌ Annulées</button>
+  </div>
+
+  <div id="serviceRequestsList" style="margin-top:15px;">
+    <p>⏳ Chargement des demandes...</p>
+  </div>
+</div>
+
+<div class="admin-card" id="branservClients">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+    <div>
+      <h2>👥 Clients</h2>
+      <p style="margin:0;color:#666;">
+        Consulte les clients et leur historique d'achat.
+      </p>
+    </div>
+
+    <button class="btn" type="button"
+            onclick="loadBranservCustomers()">
+      🔄 Actualiser
+    </button>
+  </div>
+
+  <div style="margin-top:15px;">
+    <input
+      id="customerSearch"
+      type="search"
+      placeholder="🔎 Rechercher par nom, téléphone ou email..."
+      style="width:100%;box-sizing:border-box;">
+  </div>
+
+  <div id="customersList" style="margin-top:15px;">
+    <p>⏳ Chargement des clients...</p>
+  </div>
+</div>
+
 <div class="admin-card">
 <h2>Ajouter un produit</h2>
 
@@ -208,7 +310,9 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script src="app.js"></script>
-<script src="admin-supabase.js?v=4"></script>
+<script src="admin-supabase.js?v=9"></script>
+<script src="services-admin.js?v=1"></script>
+<script src="branserv-cities-admin.js"></script>
 
 </body>
 </html>

@@ -1,37 +1,577 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!-- BRANSERV V4 SEO -->
+<meta name="description" content="Découvrez les produits disponibles chez BRANSERV au Cameroun : vêtements, chaussures, accessoires et autres produits.">
+<meta name="keywords" content="BRANSERV produits, boutique Cameroun, produits Yaoundé, vêtements, chaussures, accessoires">
+<meta name="author" content="Brandon et ChatGPT">
+<meta name="theme-color" content="#0b1f3a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Produits — BRANSERV Cameroun">
+<meta property="og:description" content="Découvrez les produits disponibles chez BRANSERV et commandez facilement.">
+<meta property="og:site_name" content="BRANSERV">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Produits - BRANSERV</title>
-<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f5f5;
+  color:#111;
+}
+header{
+  background:#111;
+  color:white;
+  padding:15px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.logo{
+  color:#ffd400;
+  font-size:25px;
+  font-weight:900;
+  text-decoration:none;
+}
+nav{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+}
+nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+nav a:hover{color:#ffd400}
+
+.hero{
+  background:linear-gradient(135deg,#111,#292929);
+  color:white;
+  padding:45px 5%;
+  text-align:center;
+}
+.hero h1{
+  font-size:38px;
+  margin-bottom:10px;
+}
+.hero p{color:#ddd}
+
+.container{
+  width:92%;
+  max-width:1200px;
+  margin:30px auto;
+}
+
+.tools{
+  background:white;
+  padding:18px;
+  border-radius:15px;
+  box-shadow:0 4px 15px #00000012;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:12px;
+  margin-bottom:18px;
+}
+input,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+  outline:none;
+}
+input:focus,select:focus{border-color:#ffd400}
+
+.categories{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:25px;
+}
+.cat{
+  border:0;
+  background:white;
+  padding:10px 15px;
+  border-radius:30px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.cat.active,.cat:hover{
+  background:#ffd400;
+}
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 5px 18px #00000012;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 25px #00000020;
+}
+.image{
+  height:220px;
+  background:#eee;
+  position:relative;
+  overflow:hidden;
+}
+.image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.promo{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:#e53935;
+  color:white;
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+.info{padding:15px}
+.name{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+.category{
+  color:#777;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.price{
+  color:#111;
+  font-size:21px;
+  font-weight:900;
+}
+.old{
+  color:#999;
+  text-decoration:line-through;
+  font-size:14px;
+  margin-left:6px;
+}
+.stock{
+  margin:10px 0;
+  font-size:13px;
+}
+.btn{
+  width:100%;
+  border:0;
+  background:#ffd400;
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:900;
+}
+.btn:hover{background:#eabd00}
+.btn:disabled{
+  background:#ddd;
+  cursor:not-allowed;
+}
+
+.empty{
+  background:white;
+  padding:40px;
+  text-align:center;
+  border-radius:15px;
+  grid-column:1/-1;
+}
+
+.whatsapp{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:#25d366;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:25px;
+  box-shadow:0 5px 20px #0003;
+  z-index:20;
+}
+
+footer{
+  margin-top:50px;
+  background:#111;
+  color:white;
+  text-align:center;
+  padding:30px 15px;
+}
+footer strong{color:#ffd400}
+
+@media(max-width:900px){
+  .products{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:700px){
+  header{flex-direction:column}
+  nav{justify-content:center}
+  .tools{grid-template-columns:1fr}
+  .products{grid-template-columns:repeat(2,1fr);gap:12px}
+  .image{height:180px}
+  .hero h1{font-size:30px}
+}
+@media(max-width:430px){
+  .products{grid-template-columns:1fr}
+  .image{height:230px}
+}
+</style>
+<link rel="manifest" href="manifest.json">
 </head>
+
 <body>
 
 <header>
 <a class="logo" href="index.html">BRANSERV</a>
+
 <nav>
-<a href="index.html">Accueil</a>
-<a href="produits.html">Produits</a>
-<a href="panier.html">Panier <span id="cartCount">0</span></a>
+<a href="index.html" data-i18n="home">Accueil</a>
+<a href="produits.html" data-i18n="products">Produits</a>
+<a href="panier.html" data-i18n="cart">Panier (<span id="cartCount">0</span>)</a>
+<a href="services.html" data-i18n="services">Services</a>
 <a href="admin.html">Admin</a>
 </nav>
 </header>
 
-<main class="section">
+<section class="hero">
 <h1>Nos produits</h1>
+<p>Découvrez les produits disponibles chez BRANSERV à Yaoundé.</p>
+</section>
 
-<input id="search" class="search"
-placeholder="Rechercher un produit...">
+<main class="container">
 
-<div id="products" class="products"></div>
+<div class="tools">
+<input id="search" type="search" placeholder="🔎 Rechercher un produit...">
+
+<select id="category">
+<option value="">Toutes les catégories</option>
+</select>
+
+<select id="sort">
+<option value="new">Plus récents</option>
+<option value="priceAsc">Prix croissant</option>
+<option value="priceDesc">Prix décroissant</option>
+<option value="name">Nom A-Z</option>
+</select>
+</div>
+
+<div id="categories" class="categories"></div>
+
+<div id="products" class="products">
+<div class="empty">Chargement des produits...</div>
+</div>
+
 </main>
 
+<a class="whatsapp"
+href="https://wa.me/237651715307"
+target="_blank"
+aria-label="WhatsApp">☘</a>
+
 <footer>
-<h2>BRANSERV</h2>
+<strong>BRANSERV</strong>
+<p>Yaoundé, Cameroun</p>
 <p>WhatsApp : +237 651 715 307</p>
+<p>Email : djiedjoufidel@gmail.com</p>
 </footer>
 
-<script src="app.js"></script>
+<script>
+const SUPABASE_URL="https://lsaykyehbfgfpoqwsmto.supabase.co";
+const SUPABASE_KEY="sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let products=[];
+let selectedCategory="";
+
+const $=id=>document.getElementById(id);
+
+function esc(value){
+  return String(value??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function formatPrice(value){
+  return Number(value||0).toLocaleString("fr-FR")+" FCFA";
+}
+
+function getImage(p){
+  return p.image_url || p.image || "https://via.placeholder.com/600x500?text=BRANSERV";
+}
+
+function updateCartCount(){
+  try{
+    const cart=JSON.parse(localStorage.getItem("branserv_cart")||"[]");
+    const count=cart.reduce((total,item)=>total+Number(item.quantity||1),0);
+    $("cartCount").textContent=count;
+  }catch(e){
+    $("cartCount").textContent="0";
+  }
+}
+
+function addToCart(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  let cart=[];
+  try{
+    cart=JSON.parse(localStorage.getItem("branserv_cart")||"[]");
+  }catch(e){
+    cart=[];
+  }
+
+  const existing=cart.find(x=>String(x.id)===String(p.id));
+
+  if(existing){
+    if(Number(existing.quantity||0)>=Number(p.stock||0)){
+      alert("Stock maximum atteint.");
+      return;
+    }
+    existing.quantity=Number(existing.quantity||0)+1;
+  }else{
+    cart.push({
+      id:p.id,
+      name:p.name,
+      price:Number(p.price||0),
+      purchase_price:Number(p.purchase_price||0),
+      image_url:getImage(p),
+      quantity:1
+    });
+  }
+
+  localStorage.setItem("branserv_cart",JSON.stringify(cart));
+  updateCartCount();
+
+  alert(p.name+" ajouté au panier.");
+}
+
+function renderCategories(){
+  const categories=[...new Set(
+    products
+      .map(p=>p.category)
+      .filter(Boolean)
+  )].sort();
+
+  $("category").innerHTML=
+    '<option value="">Toutes les catégories</option>'+
+    categories.map(c=>
+      '<option value="'+esc(c)+'">'+esc(c)+'</option>'
+    ).join("");
+
+  $("categories").innerHTML=
+    '<button class="cat active" data-cat="">Tous</button>'+
+    categories.map(c=>
+      '<button class="cat" data-cat="'+esc(c)+'">'+esc(c)+'</button>'
+    ).join("");
+
+  document.querySelectorAll(".cat").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      selectedCategory=btn.dataset.cat||"";
+      $("category").value=selectedCategory;
+
+      document.querySelectorAll(".cat")
+        .forEach(x=>x.classList.remove("active"));
+
+      btn.classList.add("active");
+      render();
+    });
+  });
+}
+
+function render(){
+  const search=$("search").value.toLowerCase().trim();
+  const category=selectedCategory;
+  const sort=$("sort").value;
+
+  let list=products.filter(p=>{
+    const name=String(p.name||"").toLowerCase();
+    const cat=String(p.category||"");
+
+    return (!search || name.includes(search)) &&
+           (!category || cat===category);
+  });
+
+  if(sort==="priceAsc"){
+    list.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
+  }
+
+  if(sort==="priceDesc"){
+    list.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
+  }
+
+  if(sort==="name"){
+    list.sort((a,b)=>
+      String(a.name||"").localeCompare(String(b.name||""))
+    );
+  }
+
+  if(!list.length){
+    $("products").innerHTML=
+      '<div class="empty">Aucun produit trouvé.</div>';
+    return;
+  }
+
+  $("products").innerHTML=list.map(p=>{
+    const stock=Number(p.stock||0);
+    const promo=Boolean(p.promo);
+    const oldPrice=Number(p.old_price||0);
+    const price=Number(p.price||0);
+
+    return `
+      <article class="card">
+
+        <div class="image">
+          <img
+            src="${esc(getImage(p))}"
+            alt="${esc(p.name)}"
+            loading="lazy"
+            onerror="this.src='https://via.placeholder.com/600x500?text=BRANSERV'"
+          >
+
+          ${promo?'<span class="promo">PROMO</span>':""}
+        </div>
+
+        <div class="info">
+
+          <div class="name">${esc(p.name)}</div>
+
+          <div class="category">
+            ${esc(p.category||"Produit")}
+          </div>
+
+          <div class="price">
+            ${formatPrice(price)}
+            ${
+              oldPrice>price
+              ? '<span class="old">'+formatPrice(oldPrice)+'</span>'
+              : ""
+            }
+          </div>
+
+          <div class="stock">
+            ${
+              stock>0
+              ? "✅ Stock disponible : "+stock
+              : "❌ Rupture de stock"
+            }
+          </div>
+
+          <button
+            class="btn"
+            onclick="addToCart('${esc(p.id)}')"
+            ${stock<=0?"disabled":""}
+          >
+            🛒 Ajouter au panier
+          </button>
+
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+async function loadProducts(){
+
+  try{
+
+    const {data,error}=await db
+      .from("products")
+      .select("*")
+      .eq("active",true)
+      .order("created_at",{ascending:false});
+
+    if(error)throw error;
+
+    products=data||[];
+
+    localStorage.setItem(
+      "branserv_products",
+      JSON.stringify(products)
+    );
+
+  }catch(error){
+
+    console.error("Supabase:",error);
+
+    try{
+      products=JSON.parse(
+        localStorage.getItem("branserv_products")||"[]"
+      );
+    }catch(e){
+      products=[];
+    }
+
+  }
+
+  renderCategories();
+  render();
+  updateCartCount();
+}
+
+$("search").addEventListener("input",render);
+
+$("sort").addEventListener("change",render);
+
+$("category").addEventListener("change",()=>{
+  selectedCategory=$("category").value;
+
+  document.querySelectorAll(".cat")
+    .forEach(x=>{
+      x.classList.toggle(
+        "active",
+        (x.dataset.cat||"")===selectedCategory
+      );
+    });
+
+  render();
+});
+
+loadProducts();
+</script>
+
+<script src="theme-v4.js?v=5.0"></script>
+<script src="theme-button-v4.js?v=6.0"></script>
+<script src="language-v4.js?v=1.0"></script>
+<script src="produits-language-v4.js?v=1.0"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('✅ BRANSERV PWA activée', reg.scope))
+      .catch(err => console.error('❌ Service Worker BRANSERV :', err));
+  });
+}
+</script>
+
 </body>
 </html>

@@ -476,6 +476,8 @@ window.downloadInvoice = async function () {
       html2canvas: {
         scale: 2,
         useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
         logging: false
       },
 

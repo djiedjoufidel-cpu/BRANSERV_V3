@@ -35,7 +35,20 @@ body{
   letter-spacing:-1px;
 }
 
-.brand span{
+.invoice-logo{
+      width:190px;
+      height:auto;
+      display:block;
+      margin-bottom:8px;
+    }
+
+    @media print{
+      .invoice-logo{
+        width:160px;
+      }
+    }
+
+    .brand span{
   font-weight:400;
 }
 
@@ -254,39 +267,66 @@ button:disabled{
   }
 }
 </style>
+<link rel="manifest" href="manifest.json">
 </head>
 
 <body>
 
 <div class="page" id="facture">
 
-  <div class="header">
+  <div class="header branserv-invoice-header">
 
-    <div>
+    <!-- CÔTÉ BRANSERV -->
+    <div class="company-side">
 
-      <div class="brand">
-        BRAN<span>SERV</span>
-      </div>
+      <img
+        src="logo-branserv.png"
+        alt="BRANSERV"
+        class="invoice-logo"
+      >
 
-      <div class="company">
-        Boutique en ligne<br>
+      <div class="company-info">
+        <strong>BRANSERV</strong><br>
+        Boutique &amp; Services<br>
         Yaoundé, Cameroun<br>
         WhatsApp : +237 651 715 307<br>
-        Email : djiedjoufidel@gmail.com
+        djiedjoufidel@gmail.com
       </div>
 
     </div>
 
-    <div class="invoice-title">
+    <!-- CÔTÉ CLIENT -->
+    <div class="client-side">
 
-      <h1>FACTURE</h1>
-
-      <div class="invoice-number" id="invoiceNumber">
-        —
+      <div class="client-title">
+        CLIENT
       </div>
 
-      <div class="invoice-number" id="invoiceDate">
-        —
+      <div class="client-info">
+
+        <div id="clientInfo">
+          —
+        </div>
+
+        <div class="client-delivery">
+          <strong>Livraison :</strong>
+          <span id="deliveryInfo">—</span>
+        </div>
+
+      </div>
+
+      <div class="invoice-title">
+
+        <h1>FACTURE</h1>
+
+        <div class="invoice-number" id="invoiceNumber">
+          —
+        </div>
+
+        <div class="invoice-number" id="invoiceDate">
+          —
+        </div>
+
       </div>
 
     </div>
@@ -300,27 +340,13 @@ button:disabled{
   <div class="section-grid">
 
     <div class="info-box">
-
-      <div class="info-title">
-        Facturé à
-      </div>
-
-      <div class="info-content" id="clientInfo">
-        —
-      </div>
-
+      <div class="info-title">Facturé à</div>
+      <div class="info-content">Informations client dans l'en-tête</div>
     </div>
 
     <div class="info-box">
-
-      <div class="info-title">
-        Livraison
-      </div>
-
-      <div class="info-content" id="deliveryInfo">
-        —
-      </div>
-
+      <div class="info-title">Livraison</div>
+      <div class="info-content">Informations de livraison dans l'en-tête</div>
     </div>
 
   </div>
@@ -391,5 +417,132 @@ button:disabled{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="facture.js"></script>
 
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('✅ BRANSERV PWA activée', reg.scope))
+      .catch(err => console.error('❌ Service Worker BRANSERV :', err));
+  });
+}
+</script>
+
 </body>
 </html>
+
+<style>
+/* =====================================================
+   BRANSERV — EN-TÊTE FACTURE PRODUIT FINAL
+   ===================================================== */
+
+.branserv-invoice-header {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 25px !important;
+  align-items: start !important;
+  padding-bottom: 25px !important;
+}
+
+.branserv-invoice-header .company-side {
+  text-align: left !important;
+}
+
+.branserv-invoice-header .invoice-logo {
+  display: block !important;
+  width: 145px !important;
+  height: auto !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.branserv-invoice-header .company-info {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6B6875;
+}
+
+.branserv-invoice-header .company-info strong {
+  color: #171521;
+  font-size: 13px;
+}
+
+.branserv-invoice-header .client-side {
+  text-align: right !important;
+}
+
+.branserv-invoice-header .client-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 9px;
+}
+
+.branserv-invoice-header .client-info {
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.branserv-invoice-header .client-info strong {
+  font-weight: 700;
+}
+
+.branserv-invoice-header .client-delivery {
+  margin-top: 7px;
+}
+
+.branserv-invoice-header .invoice-title {
+  margin-top: 14px !important;
+  text-align: right !important;
+}
+
+.branserv-invoice-header .invoice-title h1 {
+  margin: 0 !important;
+  font-size: 27px !important;
+}
+
+.branserv-invoice-header .invoice-number {
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+/* Les anciens blocs ne doivent plus apparaître */
+#facture > .section-grid {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+
+  .branserv-invoice-header {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .branserv-invoice-header .invoice-logo {
+    width: 135px !important;
+  }
+
+  .branserv-invoice-header .company-info {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  .branserv-invoice-header .company-info strong {
+    font-size: 11px;
+  }
+
+  .branserv-invoice-header .client-title {
+    font-size: 12px;
+  }
+
+  .branserv-invoice-header .client-info {
+    font-size: 9px;
+  }
+
+  .branserv-invoice-header .invoice-title h1 {
+    font-size: 23px !important;
+  }
+
+  .branserv-invoice-header .invoice-number {
+    font-size: 10px;
+  }
+}
+</style>

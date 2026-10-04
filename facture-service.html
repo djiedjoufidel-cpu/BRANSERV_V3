@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facture service - BRANSERV</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f2f4f7;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    .invoice {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .brand span {
+      color: #0b7a4b;
+    }
+
+    .invoice-title {
+      text-align: right;
+    }
+
+    .invoice-title h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .info {
+      margin-bottom: 25px;
+    }
+
+    .info p {
+      margin: 7px 0;
+    }
+
+    .service-box {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .service-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .total {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      background: #f5f7f8;
+      text-align: right;
+    }
+
+    .total-label {
+      font-size: 15px;
+      color: #666;
+    }
+
+    .total-price {
+      font-size: 30px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .thanks {
+      margin-top: 30px;
+      text-align: center;
+      color: #666;
+    }
+
+    .actions {
+      max-width: 700px;
+      margin: 20px auto 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    button {
+      border: 0;
+      padding: 13px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      background: #0b7a4b;
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      .invoice {
+        padding: 20px;
+      }
+
+      .header {
+        flex-direction: column;
+      }
+
+      .invoice-title {
+        text-align: left;
+      }
+
+      .brand {
+        font-size: 25px;
+      }
+    }
+  
+.invoice-logo{
+  width:190px;
+  max-width:100%;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  margin:0 0 10px 0;
+}
+
+@media (max-width:600px){
+  .invoice-logo{
+    width:175px;
+  }
+}
+
+@media print{
+  .invoice-logo{
+    width:160px;
+    max-width:100%;
+  }
+}
+</style>
+<link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+
+  <div class="invoice" id="serviceInvoice">
+
+    <div class="header branserv-invoice-header">
+
+      <!-- CÔTÉ BRANSERV -->
+      <div class="company-side">
+
+        <img
+          src="logo-branserv.png"
+          alt="BRANSERV"
+          class="invoice-logo"
+        >
+
+        <div class="company-info">
+          <strong>BRANSERV</strong><br>
+          Boutique &amp; Services<br>
+          Yaoundé, Cameroun<br>
+          WhatsApp : +237 651 715 307<br>
+          djiedjoufidel@gmail.com
+        </div>
+
+      </div>
+
+      <!-- CÔTÉ CLIENT -->
+      <div class="client-side">
+
+        <div class="client-title">
+          CLIENT
+        </div>
+
+        <div class="client-info">
+
+          <div>
+            <strong>Nom :</strong>
+            <span id="customerName">-</span>
+          </div>
+
+          <div>
+            <strong>Téléphone :</strong>
+            <span id="customerPhone">-</span>
+          </div>
+
+          <div>
+            <strong>Date :</strong>
+            <span id="serviceDate">-</span>
+          </div>
+
+        </div>
+
+        <div class="invoice-title">
+          <h1>FACTURE</h1>
+
+          <div id="invoiceNumber">
+            -
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="service-box">
+      <div class="service-name" id="serviceName">
+        Service BRANSERV
+      </div>
+
+      <div id="serviceDescription"></div>
+    </div>
+
+    <div class="total">
+      <div class="total-label">TOTAL À PAYER</div>
+      <div class="total-price" id="finalPrice">
+        0 FCFA
+      </div>
+    </div>
+
+    <div class="thanks">
+      Merci pour votre confiance.
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button id="pdfButton" onclick="downloadServiceInvoice()">
+      📄 Télécharger la facture PDF
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL =
+      "https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+
+      const d = new Date(value);
+
+      if (Number.isNaN(d.getTime())) return "-";
+
+      return d.toLocaleDateString("fr-FR");
+    }
+
+    function getServiceId() {
+      const params = new URLSearchParams(window.location.search);
+
+      return params.get("id");
+    }
+
+    async function loadServiceInvoice() {
+
+      const id = getServiceId();
+
+      if (!id) {
+        alert("❌ Facture introuvable.");
+        return;
+      }
+
+      const { data, error } =
+        await supabaseClient
+          .from("service_requests")
+          .select("*")
+          .eq("id", Number(id))
+          .single();
+
+      if (error || !data) {
+
+        console.error(error);
+
+        alert(
+          "❌ Impossible de charger la facture."
+        );
+
+        return;
+      }
+
+      document.getElementById("invoiceNumber").textContent =
+        "BR-SRV-" + data.id;
+
+      document.getElementById("customerName").textContent =
+        data.customer_name || "-";
+
+      document.getElementById("customerPhone").textContent =
+        data.customer_phone || "-";
+
+      document.getElementById("serviceDate").textContent =
+        formatDate(data.completed_at || data.updated_at);
+
+      document.getElementById("serviceName").textContent =
+        data.service_type || "Service BRANSERV";
+
+      document.getElementById("serviceDescription").textContent =
+        data.description || "";
+
+      document.getElementById("finalPrice").textContent =
+        formatMoney(data.final_price);
+    }
+
+    async function downloadServiceInvoice() {
+
+      if (!window.html2pdf) {
+        alert(
+          "❌ Le générateur PDF n'est pas encore chargé."
+        );
+        return;
+      }
+
+      const element =
+        document.getElementById("serviceInvoice");
+
+      const id = getServiceId();
+
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename: "Facture-BR-SRV-" + id + ".pdf",
+          image: {
+            type: "jpeg",
+            quality: 0.98
+          },
+          html2canvas: {
+            scale: 2
+          },
+          jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait"
+          }
+        })
+        .from(element)
+        .save();
+    }
+
+    loadServiceInvoice();
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('✅ BRANSERV PWA activée', reg.scope))
+      .catch(err => console.error('❌ Service Worker BRANSERV :', err));
+  });
+}
+</script>
+
+</body>
+</html>
+
+<style>
+/* =====================================================
+   BRANSERV — EN-TÊTE FACTURE SERVICE FINAL
+   BRANSERV à gauche / CLIENT à droite
+   ===================================================== */
+
+.branserv-invoice-header {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 25px !important;
+  align-items: start !important;
+  padding-bottom: 25px !important;
+}
+
+.branserv-invoice-header .company-side {
+  text-align: left !important;
+}
+
+.branserv-invoice-header .invoice-logo {
+  display: block !important;
+  width: 145px !important;
+  height: auto !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.branserv-invoice-header .company-info {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6B6875;
+}
+
+.branserv-invoice-header .company-info strong {
+  color: #171521;
+  font-size: 13px;
+}
+
+.branserv-invoice-header .client-side {
+  text-align: right !important;
+}
+
+.branserv-invoice-header .client-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 9px;
+}
+
+.branserv-invoice-header .client-info {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.branserv-invoice-header .client-info div {
+  margin-bottom: 2px;
+}
+
+.branserv-invoice-header .invoice-title {
+  margin-top: 14px !important;
+  text-align: right !important;
+}
+
+.branserv-invoice-header .invoice-title h1 {
+  margin: 0 !important;
+  font-size: 27px !important;
+}
+
+.branserv-invoice-header #invoiceNumber {
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+@media (max-width: 600px) {
+
+  .branserv-invoice-header {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .branserv-invoice-header .invoice-logo {
+    width: 135px !important;
+  }
+
+  .branserv-invoice-header .company-info {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  .branserv-invoice-header .company-info strong {
+    font-size: 11px;
+  }
+
+  .branserv-invoice-header .client-title {
+    font-size: 12px;
+  }
+
+  .branserv-invoice-header .client-info {
+    font-size: 9px;
+    line-height: 1.7;
+  }
+
+  .branserv-invoice-header .invoice-title h1 {
+    font-size: 23px !important;
+  }
+
+  .branserv-invoice-header #invoiceNumber {
+    font-size: 11px;
+  }
+}
+</style>

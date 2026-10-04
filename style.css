@@ -676,3 +676,943 @@ display:none!important
   .order-top{flex-direction:column}
   .actions .btn{width:100%;text-align:center}
 }
+
+/* =========================================================
+   BRANSERV V4 — COUCHE DESIGN
+   Ne remplace pas les styles V3 existants.
+   ========================================================= */
+
+:root {
+  --br-primary: #0b1f3a;
+  --br-primary-2: #123b68;
+  --br-accent: #ff8a00;
+  --br-accent-2: #ffb000;
+  --br-bg: #f5f7fb;
+  --br-card: #ffffff;
+  --br-text: #171521;
+  --br-muted: #6b7280;
+  --br-border: rgba(11, 31, 58, .10);
+  --br-shadow: 0 10px 30px rgba(11, 31, 58, .08);
+  --br-shadow-hover: 0 18px 45px rgba(11, 31, 58, .14);
+  --br-radius: 18px;
+  --br-transition: 220ms ease;
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--br-bg);
+  color: var(--br-text);
+  transition:
+    background-color var(--br-transition),
+    color var(--br-transition);
+}
+
+/* Liens */
+a {
+  transition:
+    color var(--br-transition),
+    opacity var(--br-transition);
+}
+
+/* Boutons */
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+  transition:
+    transform var(--br-transition),
+    box-shadow var(--br-transition),
+    background-color var(--br-transition),
+    opacity var(--br-transition);
+}
+
+button:hover,
+.btn:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(11, 31, 58, .14);
+}
+
+button:active,
+.btn:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+  transform: translateY(0);
+}
+
+/* Cartes */
+.card,
+.product-card,
+.admin-card,
+.service-card,
+.product,
+.category-card {
+  border-radius: var(--br-radius);
+  transition:
+    transform var(--br-transition),
+    box-shadow var(--br-transition),
+    border-color var(--br-transition);
+}
+
+.card:hover,
+.product-card:hover,
+.service-card:hover,
+.product:hover,
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--br-shadow-hover);
+}
+
+/* Images produits */
+.product-card img,
+.product img,
+.card img {
+  transition:
+    transform 350ms ease,
+    filter 350ms ease;
+}
+
+.product-card:hover img,
+.product:hover img,
+.card:hover img {
+  transform: scale(1.035);
+}
+
+/* Champs */
+input,
+select,
+textarea {
+  transition:
+    border-color var(--br-transition),
+    box-shadow var(--br-transition),
+    background-color var(--br-transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--br-accent);
+  box-shadow: 0 0 0 3px rgba(255, 138, 0, .14);
+}
+
+/* Apparition des éléments */
+@keyframes branservFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.br-v4-animate {
+  animation: branservFadeUp .55s ease both;
+}
+
+/* Badge promotion */
+.promo,
+.badge-promo,
+.promotion-badge {
+  border-radius: 999px;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+}
+
+/* Sélection de texte */
+::selection {
+  background: var(--br-accent);
+  color: #fff;
+}
+
+/* =========================================================
+   MODE SOMBRE BRANSERV V4
+   Activé avec body.dark-mode
+   ========================================================= */
+
+body.dark-mode {
+  --br-bg: #0b1220;
+  --br-card: #121c2d;
+  --br-text: #f1f5f9;
+  --br-muted: #a8b3c5;
+  --br-border: rgba(255, 255, 255, .09);
+  --br-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+  --br-shadow-hover: 0 18px 45px rgba(0, 0, 0, .40);
+
+  background: var(--br-bg);
+  color: var(--br-text);
+}
+
+body.dark-mode .card,
+body.dark-mode .product-card,
+body.dark-mode .admin-card,
+body.dark-mode .service-card,
+body.dark-mode .product,
+body.dark-mode .category-card {
+  background: var(--br-card);
+  color: var(--br-text);
+  border-color: var(--br-border);
+  box-shadow: var(--br-shadow);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #0f1929;
+  color: #f1f5f9;
+  border-color: var(--br-border);
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #8d99aa;
+}
+
+body.dark-mode a {
+  color: #ffb347;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .card,
+  .product-card,
+  .admin-card,
+  .service-card,
+  .product,
+  .category-card {
+    border-radius: 15px;
+  }
+
+  button,
+  .btn,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 42px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Accessibilité : réduire les animations si demandé */
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ===== BRANSERV V4 — DARK MODE FIX ===== */
+
+html.dark-mode,
+body.dark-mode {
+    background: #101418 !important;
+    color: #f5f7fb !important;
+}
+
+body.dark-mode header,
+body.dark-mode nav,
+body.dark-mode main,
+body.dark-mode section,
+body.dark-mode footer {
+    background-color: #101418 !important;
+    color: #f5f7fb !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .product-card,
+body.dark-mode .admin-card,
+body.dark-mode .service-card,
+body.dark-mode .container,
+body.dark-mode .modal-content,
+body.dark-mode .box {
+    background-color: #181e25 !important;
+    color: #f5f7fb !important;
+    border-color: #303844 !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode span,
+body.dark-mode li {
+    color: #f5f7fb !important;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #202731 !important;
+    color: #ffffff !important;
+    border-color: #3a4553 !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #aeb7c4 !important;
+}
+
+body.dark-mode a {
+    color: #ffb000 !important;
+}
+
+body.dark-mode table {
+    background-color: #181e25 !important;
+    color: #f5f7fb !important;
+}
+
+body.dark-mode th,
+body.dark-mode td {
+    color: #f5f7fb !important;
+    border-color: #303844 !important;
+}
+
+body.dark-mode button {
+    color: #ffffff;
+}
+
+
+/* BRANSERV V4 - THEME DEFINITIF */
+
+html[data-branserv-theme="dark"],
+html[data-branserv-theme="dark"] body {
+    background:#0f1115 !important;
+    color:#f5f7fb !important;
+}
+
+html[data-branserv-theme="dark"] body * {
+    color:#f5f7fb !important;
+    border-color:#303640 !important;
+}
+
+html[data-branserv-theme="dark"] body,
+html[data-branserv-theme="dark"] header,
+html[data-branserv-theme="dark"] nav,
+html[data-branserv-theme="dark"] main,
+html[data-branserv-theme="dark"] section,
+html[data-branserv-theme="dark"] footer {
+    background:#0f1115 !important;
+}
+
+html[data-branserv-theme="dark"] .card,
+html[data-branserv-theme="dark"] .product-card,
+html[data-branserv-theme="dark"] .service-card,
+html[data-branserv-theme="dark"] .admin-card,
+html[data-branserv-theme="dark"] article {
+    background:#181c22 !important;
+}
+
+html[data-branserv-theme="dark"] input,
+html[data-branserv-theme="dark"] textarea,
+html[data-branserv-theme="dark"] select {
+    background:#20252d !important;
+    color:#fff !important;
+}
+
+html[data-branserv-theme="dark"] a {
+    color:#ffb000 !important;
+}
+
+
+/* ============================================================
+   BRANSERV — DESIGN PREMIUM V5
+   Identité : Bleu nuit + Bleu profond + Orange doré
+   ============================================================ */
+
+:root {
+  --br-primary: #4C1D95;
+  --br-primary-2: #7C3AED;
+  --br-accent: #F43F5E;
+  --br-accent-2: #FB7185;
+
+  --br-bg: #FAFAFF;
+  --br-card: #FFFFFF;
+
+  --br-text: #171521;
+  --br-muted: #6B6875;
+  --br-border: #E7E4EF;
+
+  --br-shadow: 0 10px 30px rgba(8, 26, 43, .08);
+  --br-shadow-hover: 0 18px 45px rgba(8, 26, 43, .14);
+
+  --br-radius: 18px;
+  --br-radius-sm: 12px;
+}
+
+/* =========================
+   BASE
+   ========================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top right,
+      rgba(255, 138, 0, .045),
+      transparent 30%),
+    var(--br-bg);
+
+  color: var(--br-text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  line-height: 1.6;
+}
+
+/* =========================
+   LIENS
+   ========================= */
+
+a {
+  color: var(--br-primary-2);
+  transition: color .2s ease;
+}
+
+a:hover {
+  color: var(--br-accent);
+}
+
+/* =========================
+   TITRES
+   ========================= */
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--br-primary);
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+
+h1 {
+  line-height: 1.08;
+}
+
+h2 {
+  line-height: 1.15;
+}
+
+/* =========================
+   HEADER / NAVIGATION
+   ========================= */
+
+header,
+.site-header,
+.navbar,
+nav {
+  position: relative;
+  z-index: 100;
+}
+
+.site-header,
+.navbar {
+  background: rgba(255, 255, 255, .94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border-bottom: 1px solid rgba(8, 26, 43, .07);
+
+  box-shadow:
+    0 4px 18px rgba(8, 26, 43, .05);
+}
+
+/* =========================
+   BOUTONS
+   ========================= */
+
+button,
+.btn,
+input[type="button"],
+input[type="submit"] {
+  border-radius: 12px;
+  font-weight: 700;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+button:hover,
+.btn:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary,
+.btn-main,
+.btn-success,
+button.primary {
+  background:
+    linear-gradient(
+      135deg,
+      var(--br-accent),
+      var(--br-accent-2)
+    );
+
+  color: #fff;
+  border: none;
+
+  box-shadow:
+    0 8px 20px rgba(255, 138, 0, .22);
+}
+
+.btn-primary:hover,
+.btn-main:hover,
+.btn-success:hover,
+button.primary:hover {
+  box-shadow:
+    0 12px 28px rgba(255, 138, 0, .32);
+}
+
+/* =========================
+   CARTES
+   ========================= */
+
+.card,
+.product-card,
+.service-card,
+.admin-card,
+.stat-card {
+  background: var(--br-card);
+  border: 1px solid rgba(8, 26, 43, .06);
+  border-radius: var(--br-radius);
+
+  box-shadow: var(--br-shadow);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+}
+
+.card:hover,
+.product-card:hover,
+.service-card:hover,
+.admin-card:hover,
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--br-shadow-hover);
+  border-color: rgba(255, 138, 0, .22);
+}
+
+/* =========================
+   PRODUITS
+   ========================= */
+
+.product-card {
+  overflow: hidden;
+}
+
+.product-card img {
+  transition:
+    transform .4s ease,
+    filter .3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.045);
+}
+
+.product-card .price,
+.price {
+  color: var(--br-accent);
+  font-weight: 800;
+}
+
+.old-price {
+  color: var(--br-muted);
+  opacity: .75;
+}
+
+/* =========================
+   BADGES
+   ========================= */
+
+.badge,
+.promo,
+.promotion,
+.stock-badge {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.promo,
+.badge-promo {
+  background: rgba(255, 138, 0, .12);
+  color: #C85F00;
+}
+
+/* =========================
+   FORMULAIRES
+   ========================= */
+
+input,
+select,
+textarea {
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+
+  background: #fff;
+  color: var(--br-text);
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+
+  border-color: var(--br-accent);
+
+  box-shadow:
+    0 0 0 4px rgba(255, 138, 0, .11);
+}
+
+/* =========================
+   HERO
+   ========================= */
+
+.hero,
+.hero-section {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(255, 138, 0, .18),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      var(--br-primary),
+      var(--br-primary-2)
+    );
+
+  color: #fff;
+
+  border-radius: 0 0 30px 30px;
+}
+
+.hero h1,
+.hero h2,
+.hero-section h1,
+.hero-section h2 {
+  color: #fff;
+}
+
+.hero p,
+.hero-section p {
+  color: rgba(255, 255, 255, .82);
+}
+
+/* =========================
+   SECTIONS
+   ========================= */
+
+section {
+  scroll-margin-top: 90px;
+}
+
+/* =========================
+   TABLEAUX ADMIN
+   ========================= */
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+
+  background: #fff;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius);
+  overflow: hidden;
+
+  box-shadow: var(--br-shadow);
+}
+
+th {
+  background: var(--br-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+td,
+th {
+  border-bottom: 1px solid var(--br-border);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(255, 138, 0, .025);
+}
+
+/* =========================
+   ALERTES
+   ========================= */
+
+.alert,
+.message,
+.notice {
+  border-radius: 14px;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+footer {
+  background:
+    linear-gradient(
+      135deg,
+      #061522,
+      var(--br-primary)
+    );
+
+  color: rgba(255, 255, 255, .78);
+}
+
+footer h2,
+footer h3,
+footer h4 {
+  color: #fff;
+}
+
+footer a {
+  color: rgba(255, 255, 255, .8);
+}
+
+footer a:hover {
+  color: var(--br-accent-2);
+}
+
+/* =========================
+   SCROLLBAR
+   ========================= */
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #EEF1F5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B8C0CC;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--br-primary-2);
+}
+
+/* =========================
+   ANIMATION
+   ========================= */
+
+@keyframes branservFadeUpV5 {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card,
+.product-card,
+.service-card {
+  animation: branservFadeUpV5 .45s ease both;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+
+  body {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  h2 {
+    font-size: clamp(1.55rem, 6vw, 2.2rem);
+  }
+
+  .hero,
+  .hero-section {
+    border-radius: 0 0 22px 22px;
+  }
+
+  .card,
+  .product-card,
+  .service-card,
+  .admin-card {
+    border-radius: 15px;
+  }
+
+  button,
+  .btn {
+    min-height: 44px;
+  }
+}
+
+/* =========================
+   MODE SOMBRE
+   ========================= */
+
+html.br-dark {
+  --br-bg: #07121E;
+  --br-card: #0D1D2C;
+  --br-text: #EAF0F6;
+  --br-muted: #AAB6C3;
+  --br-border: #203447;
+
+  background: #07121E;
+}
+
+html.br-dark body {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 138, 0, .07),
+      transparent 30%
+    ),
+    var(--br-bg);
+
+  color: var(--br-text);
+}
+
+html.br-dark h1,
+html.br-dark h2,
+html.br-dark h3,
+html.br-dark h4 {
+  color: #F5F8FB;
+}
+
+html.br-dark .site-header,
+html.br-dark .navbar {
+  background: rgba(7, 18, 30, .94);
+  border-color: rgba(255,255,255,.07);
+}
+
+html.br-dark input,
+html.br-dark select,
+html.br-dark textarea {
+  background: #0B1A28;
+  color: #F5F8FB;
+  border-color: #294055;
+}
+
+html.br-dark table {
+  background: #0D1D2C;
+  border-color: #294055;
+}
+
+html.br-dark td {
+  border-color: #294055;
+}
+
+html.br-dark tr:hover td {
+  background: rgba(255, 138, 0, .05);
+}
+
+html.br-dark ::-webkit-scrollbar-track {
+  background: #0B1824;
+}
+
+html.br-dark ::-webkit-scrollbar-thumb {
+  background: #31485C;
+}
+
+/* =========================
+   ACCESSIBILITÉ
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}
+
+
+/* BRANSERV — LOGO FACTURES */
+.invoice-logo {
+  display: block;
+  width: 210px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 12px 0;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .invoice-logo {
+    width: 170px;
+  }
+}
+

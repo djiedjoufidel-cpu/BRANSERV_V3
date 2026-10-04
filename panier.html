@@ -3,35 +3,708 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Panier - BRANSERV</title>
-<link rel="stylesheet" href="style.css">
+<title>Mon panier - BRANSERV</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f5f5;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:15px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.logo{
+  color:#ffd400;
+  font-size:25px;
+  font-weight:900;
+  text-decoration:none;
+}
+
+nav{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+nav a:hover{
+  color:#ffd400;
+}
+
+.hero{
+  background:linear-gradient(135deg,#111,#292929);
+  color:white;
+  padding:40px 5%;
+  text-align:center;
+}
+
+.hero h1{
+  font-size:36px;
+  margin-bottom:8px;
+}
+
+.hero p{
+  color:#ddd;
+}
+
+.container{
+  width:92%;
+  max-width:1100px;
+  margin:30px auto;
+}
+
+.cart-box{
+  display:grid;
+  grid-template-columns:1fr 330px;
+  gap:22px;
+  align-items:start;
+}
+
+.items{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.cart-item{
+  background:white;
+  border-radius:16px;
+  padding:15px;
+  display:grid;
+  grid-template-columns:100px 1fr auto;
+  gap:15px;
+  align-items:center;
+  box-shadow:0 4px 15px #00000012;
+}
+
+.cart-image{
+  width:100px;
+  height:100px;
+  border-radius:12px;
+  object-fit:cover;
+  background:#eee;
+}
+
+.product-name{
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:7px;
+}
+
+.unit-price{
+  color:#666;
+  font-size:14px;
+}
+
+.subtotal{
+  font-size:19px;
+  font-weight:900;
+  margin-top:8px;
+}
+
+.controls{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:10px;
+}
+
+.qty-btn{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:8px;
+  background:#111;
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.qty-value{
+  min-width:32px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.remove{
+  border:0;
+  background:#ffe5e5;
+  color:#c00;
+  padding:8px 11px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.summary{
+  background:white;
+  border-radius:16px;
+  padding:22px;
+  box-shadow:0 4px 15px #00000012;
+  position:sticky;
+  top:90px;
+}
+
+.summary h2{
+  margin-bottom:20px;
+}
+
+.line{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid #eee;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  font-size:23px;
+  font-weight:900;
+  padding:18px 0;
+}
+
+.btn{
+  display:block;
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:14px;
+  text-align:center;
+  font-weight:900;
+  cursor:pointer;
+  text-decoration:none;
+  margin-top:10px;
+}
+
+.command{
+  background:#ffd400;
+  color:#111;
+}
+
+.command:hover{
+  background:#eabd00;
+}
+
+.clear{
+  background:#eee;
+  color:#111;
+}
+
+.clear:hover{
+  background:#ddd;
+}
+
+.empty{
+  background:white;
+  padding:50px 20px;
+  text-align:center;
+  border-radius:16px;
+  box-shadow:0 4px 15px #00000012;
+}
+
+.empty h2{
+  margin-bottom:10px;
+}
+
+.empty p{
+  color:#666;
+  margin-bottom:20px;
+}
+
+.shop{
+  display:inline-block;
+  background:#ffd400;
+  color:#111;
+  padding:13px 20px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.stock-warning{
+  color:#c00;
+  font-size:13px;
+  margin-top:5px;
+}
+
+footer{
+  margin-top:50px;
+  background:#111;
+  color:white;
+  text-align:center;
+  padding:30px 15px;
+}
+
+footer strong{
+  color:#ffd400;
+}
+
+@media(max-width:800px){
+  .cart-box{
+    grid-template-columns:1fr;
+  }
+
+  .summary{
+    position:static;
+  }
+}
+
+@media(max-width:600px){
+  header{
+    flex-direction:column;
+  }
+
+  nav{
+    justify-content:center;
+    gap:12px;
+  }
+
+  .hero h1{
+    font-size:29px;
+  }
+
+  .cart-item{
+    grid-template-columns:75px 1fr;
+  }
+
+  .cart-image{
+    width:75px;
+    height:75px;
+  }
+
+  .item-actions{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+}
+</style>
+<link rel="manifest" href="manifest.json">
 </head>
+
 <body>
 
 <header>
+
 <a class="logo" href="index.html">BRANSERV</a>
+
 <nav>
 <a href="index.html">Accueil</a>
 <a href="produits.html">Produits</a>
-<a href="panier.html">Panier <span id="cartCount">0</span></a>
+<a href="panier.html">Panier (<span id="cartCount">0</span>)</a>
+<a href="services.html">Services</a>
 <a href="admin.html">Admin</a>
 </nav>
+
 </header>
 
-<main class="section">
-<h1>Mon panier</h1>
-<div id="cart"></div>
-<div id="cartTotal" class="total"></div>
+<section class="hero">
+<h1>🛒 Mon panier</h1>
+<p>Vérifiez vos produits avant de passer la commande.</p>
+</section>
 
-<a class="btn whatsapp" href="commande.html">
-Passer la commande
+<main class="container">
+
+<div id="empty" class="empty" style="display:none">
+<h2>Votre panier est vide</h2>
+<p>Découvrez nos produits et ajoutez vos articles au panier.</p>
+<a class="shop" href="produits.html">🛍️ Voir les produits</a>
+</div>
+
+<div id="cartBox" class="cart-box">
+
+<section class="items">
+
+<div id="items"></div>
+
+<button class="btn clear" onclick="clearCart()">
+🧹 Vider le panier
+</button>
+
+</section>
+
+<aside class="summary">
+
+<h2>Résumé</h2>
+
+<div class="line">
+<span>Articles</span>
+<strong id="itemCount">0</strong>
+</div>
+
+<div class="line">
+<span>Sous-total</span>
+<strong id="subtotal">0 FCFA</strong>
+</div>
+
+<div class="line">
+<span>Livraison</span>
+<strong>À confirmer</strong>
+</div>
+
+<div class="total">
+<span>Total</span>
+<strong id="total">0 FCFA</strong>
+</div>
+
+<a id="checkout" class="btn command" href="commande.html">
+📦 Passer la commande
 </a>
+
+<a class="btn clear" href="produits.html">
+← Continuer mes achats
+</a>
+
+</aside>
+
+</div>
+
 </main>
 
 <footer>
-<h2>BRANSERV</h2>
+<strong>BRANSERV</strong>
+<p>Yaoundé, Cameroun</p>
+<p>WhatsApp : +237 651 715 307</p>
+<p>Email : djiedjoufidel@gmail.com</p>
 </footer>
 
-<script src="app.js"></script>
+<script>
+
+const SUPABASE_URL=
+"https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+const SUPABASE_KEY=
+"sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+let products=[];
+
+function money(n){
+return Number(n||0).toLocaleString("fr-FR")+" FCFA";
+}
+
+function getCart(){
+try{
+return JSON.parse(
+localStorage.getItem("branserv_cart")||"[]"
+);
+}catch(e){
+return [];
+}
+}
+
+function saveCart(cart){
+localStorage.setItem(
+"branserv_cart",
+JSON.stringify(cart)
+);
+}
+
+function getLocalProducts(){
+try{
+return JSON.parse(
+localStorage.getItem("branserv_products")||"[]"
+);
+}catch(e){
+return [];
+}
+}
+
+function imageOf(p){
+return p.image_url||
+p.image||
+"https://via.placeholder.com/300x300?text=BRANSERV";
+}
+
+function updateCount(cart){
+const count=cart.reduce(
+(sum,item)=>sum+Number(item.quantity||0),0
+);
+
+document.getElementById("cartCount").textContent=count;
+document.getElementById("itemCount").textContent=count;
+}
+
+function render(){
+
+const cart=getCart();
+
+updateCount(cart);
+
+const box=document.getElementById("items");
+const empty=document.getElementById("empty");
+const cartBox=document.getElementById("cartBox");
+
+if(!cart.length){
+
+empty.style.display="block";
+cartBox.style.display="none";
+
+document.getElementById("subtotal").textContent="0 FCFA";
+document.getElementById("total").textContent="0 FCFA";
+
+return;
+}
+
+empty.style.display="none";
+cartBox.style.display="grid";
+
+let total=0;
+
+box.innerHTML="";
+
+cart.forEach(item=>{
+
+const p=products.find(
+x=>String(x.id)===String(item.id)
+);
+
+if(!p)return;
+
+const quantity=Number(item.quantity||1);
+const price=Number(p.price||0);
+const stock=Number(p.stock||0);
+const subtotal=price*quantity;
+
+total+=subtotal;
+
+const div=document.createElement("article");
+
+div.className="cart-item";
+
+div.innerHTML=`
+
+<img
+class="cart-image"
+src="${imageOf(p)}"
+alt="${p.name}"
+onerror="this.src='https://via.placeholder.com/300x300?text=BRANSERV'"
+>
+
+<div>
+
+<div class="product-name">
+${p.name}
+</div>
+
+<div class="unit-price">
+${money(price)} / unité
+</div>
+
+<div class="subtotal">
+${money(subtotal)}
+</div>
+
+${
+quantity>=stock
+?'<div class="stock-warning">⚠️ Stock maximum atteint</div>'
+:""
+}
+
+</div>
+
+<div class="item-actions">
+
+<div class="controls">
+
+<button
+class="qty-btn"
+onclick="changeQty('${p.id}',-1)">
+−
+</button>
+
+<span class="qty-value">
+${quantity}
+</span>
+
+<button
+class="qty-btn"
+onclick="changeQty('${p.id}',1)"
+${quantity>=stock?"disabled":""}>
++
+</button>
+
+</div>
+
+<button
+class="remove"
+onclick="removeItem('${p.id}')">
+🗑️ Supprimer
+</button>
+
+</div>
+`;
+
+box.appendChild(div);
+
+});
+
+document.getElementById("subtotal").textContent=
+money(total);
+
+document.getElementById("total").textContent=
+money(total);
+
+}
+
+function changeQty(id,delta){
+
+const cart=getCart();
+
+const item=cart.find(
+x=>String(x.id)===String(id)
+);
+
+const p=products.find(
+x=>String(x.id)===String(id)
+);
+
+if(!item||!p)return;
+
+let quantity=
+Number(item.quantity||1)+delta;
+
+const stock=Number(p.stock||0);
+
+if(quantity<1){
+quantity=1;
+}
+
+if(quantity>stock){
+alert("Stock maximum disponible : "+stock);
+quantity=stock;
+}
+
+item.quantity=quantity;
+
+saveCart(cart);
+
+render();
+
+}
+
+function removeItem(id){
+
+let cart=getCart();
+
+cart=cart.filter(
+x=>String(x.id)!==String(id)
+);
+
+saveCart(cart);
+
+render();
+
+}
+
+function clearCart(){
+
+if(!getCart().length)return;
+
+if(!confirm("Voulez-vous vraiment vider le panier ?")){
+return;
+}
+
+saveCart([]);
+
+render();
+
+}
+
+async function loadProducts(){
+
+try{
+
+if(window.supabase){
+
+const db=window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+const result=await db
+.from("products")
+.select("*")
+.eq("active",true);
+
+if(!result.error){
+
+products=result.data||[];
+
+localStorage.setItem(
+"branserv_products",
+JSON.stringify(products)
+);
+
+}else{
+
+products=getLocalProducts();
+
+}
+
+}else{
+
+products=getLocalProducts();
+
+}
+
+}catch(error){
+
+console.error(error);
+
+products=getLocalProducts();
+
+}
+
+render();
+
+}
+
+document.addEventListener(
+"DOMContentLoaded",
+loadProducts
+);
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="theme-v4.js?v=5.0"></script>
+<script src="theme-button-v4.js?v=6.0"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('✅ BRANSERV PWA activée', reg.scope))
+      .catch(err => console.error('❌ Service Worker BRANSERV :', err));
+  });
+}
+</script>
+
 </body>
 </html>

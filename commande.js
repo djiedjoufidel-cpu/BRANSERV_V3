@@ -172,7 +172,9 @@ async function createSupabaseOrder({
   customerId,
   customer,
   items,
-  total
+  total,
+  deliveryFee = 0,
+  deliveryMethod = "delivery"
 }) {
   const supabase = getBranservSupabase();
 
@@ -190,6 +192,10 @@ async function createSupabaseOrder({
       customer_name: customer.name,
       customer_phone: customer.phone,
       customer_address: customer.address || null,
+      city: customer.city || null,
+      delivery_fee: Number(deliveryFee || 0),
+      delivery_method: deliveryMethod || "delivery",
+      delivery_address: customer.address || null,
 
       status: "new",
 
@@ -407,8 +413,56 @@ async function submitOrder() {
       .filter(Boolean)
       .join(", ");
 
-  /* Pour l'instant livraison gratuite */
-  const deliveryFee = 0;
+  /* ----------------------------------------------------------
+     CALCUL DES FRAIS DE LIVRAISON
+     ---------------------------------------------------------- */
+
+  let deliveryFee = 0;
+
+  if (delivery === "delivery" && city) {
+    try {
+      const supabase = getBranservSupabase();
+
+      const { data: cityData, error: cityError } =
+        await supabase
+          .from("branserv_cities")
+          .select("delivery_fee, active")
+          .eq("name", city)
+          .eq("active", true)
+          .maybeSingle();
+
+      if (cityError) {
+        console.error(
+          "❌ Erreur récupération frais livraison :",
+          cityError
+        );
+      } else if (cityData) {
+        deliveryFee =
+          Number(cityData.delivery_fee || 0);
+      }
+    } catch (error) {
+      console.error(
+        "❌ Erreur calcul livraison :",
+        error
+      );
+
+      deliveryFee = 0;
+    }
+  }
+
+  /* Retrait sur place = aucun frais */
+  if (delivery === "pickup") {
+    deliveryFee = 0;
+  }
+
+  console.log(
+    "🚚 Livraison :",
+    delivery,
+    "| Ville :",
+    city,
+    "| Frais :",
+    deliveryFee
+  );
 
   const total =
     subtotal + deliveryFee;
@@ -447,12 +501,15 @@ async function submitOrder() {
         customer: {
           name,
           phone,
+          city,
           address: fullAddress
         },
 
         items,
 
-        total
+        total,
+        deliveryFee,
+        deliveryMethod: delivery
       });
 
     console.log(

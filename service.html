@@ -106,7 +106,9 @@ body{
 
       <div class="form-group">
         <label>Ville *</label>
-        <input id="city" value="Yaoundé" required>
+        <select id="city" required>
+  <option value="">Sélectionner une ville</option>
+</select>
       </div>
 
       <div class="form-group">
@@ -147,13 +149,29 @@ body{
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="branserv-cities.js"></script>
+
 <script>
+const SUPABASE_URL =
+  "https://lsaykyehbfgfpoqwsmto.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_nuAzQtyhEtTeQoC-4JjM3g_yGG7KHdZ";
+
+const branservSupabase =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 const params =
-new URLSearchParams(location.search);
+  new URLSearchParams(location.search);
 
 const type =
-params.get("type") || "other";
+  params.get("type") || "other";
 
 const titles = {
 
@@ -181,106 +199,179 @@ const titles = {
 };
 
 document.getElementById("title").textContent =
-titles[type] || titles.other;
+  titles[type] || titles.other;
 
 
 document
-.getElementById("serviceForm")
-.addEventListener("submit",function(e){
+  .getElementById("serviceForm")
+  .addEventListener("submit", async function(e) {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const request = {
+    const button =
+      this.querySelector("button[type='submit'], .submit");
 
-    id:
-      "SRV-" +
-      Date.now(),
+    if (button) {
+      button.disabled = true;
+      button.textContent = "⏳ Envoi en cours...";
+    }
 
-    type:type,
+    try {
 
-    service:
-      titles[type] || titles.other,
+      const name =
+        document.getElementById("name").value.trim();
 
-    name:
-      document.getElementById("name").value.trim(),
+      const phone =
+        document.getElementById("phone").value.trim();
 
-    phone:
-      document.getElementById("phone").value.trim(),
+      const city =
+        document.getElementById("city").value.trim();
 
-    city:
-      document.getElementById("city").value.trim(),
+      const location =
+        document.getElementById("location").value.trim();
 
-    location:
-      document.getElementById("location").value.trim(),
+      const details =
+        document.getElementById("details").value.trim();
 
-    details:
-      document.getElementById("details").value.trim(),
+      const date =
+        document.getElementById("date").value;
 
-    date:
-      document.getElementById("date").value,
+      if (!name || !phone || !city || !details) {
+        throw new Error(
+          "Veuillez remplir tous les champs obligatoires."
+        );
+      }
 
-    status:"new",
+      const service =
+        titles[type] || titles.other;
 
-    createdAt:
-      new Date().toISOString()
+      const locationComplete =
+        [city, location]
+          .filter(Boolean)
+          .join(" - ");
 
-  };
+      const { data, error } =
+        await branservSupabase
+          .from("service_requests")
+          .insert({
+            service_type: service,
+            customer_name: name,
+            customer_phone: phone,
+            description:
+              details +
+              (date
+                ? "\n\nDate souhaitée : " + date
+                : ""),
+            location: locationComplete,
+            city: city || null,
+            status: "new"
+          })
+          .select()
+          .single();
 
+      if (error) {
+        console.error(
+          "❌ Supabase service_requests :",
+          error
+        );
 
-  const requests =
-    JSON.parse(
-      localStorage.getItem(
-        "branserv_service_requests"
-      ) || "[]"
-    );
+        throw new Error(
+          error.message ||
+          "Impossible d'enregistrer la demande."
+        );
+      }
 
+      console.log(
+        "✅ Demande service enregistrée :",
+        data
+      );
 
-  requests.unshift(request);
+      const requestId =
+        data?.id || Date.now();
 
+      const localRequest = {
+        id: "SRV-" + requestId,
+        type: type,
+        service: service,
+        name: name,
+        phone: phone,
+        city: city,
+        location: location,
+        details: details,
+        date: date,
+        status: "new",
+        createdAt:
+          new Date().toISOString()
+      };
 
-  localStorage.setItem(
-    "branserv_service_requests",
-    JSON.stringify(requests)
-  );
+      const requests =
+        JSON.parse(
+          localStorage.getItem(
+            "branserv_service_requests"
+          ) || "[]"
+        );
 
+      requests.unshift(localRequest);
 
-  const message =
+      localStorage.setItem(
+        "branserv_service_requests",
+        JSON.stringify(requests)
+      );
+
+      const message =
 `Bonjour BRANSERV,
 
 Je souhaite demander un service.
 
-Service : ${request.service}
-Nom : ${request.name}
-Téléphone : ${request.phone}
-Ville : ${request.city}
-Localisation : ${request.location}
+Service : ${service}
+Nom : ${name}
+Téléphone : ${phone}
+Ville : ${city}
+Localisation : ${location || "Non précisée"}
 
 Détails :
-${request.details}
+${details}
 
 Date souhaitée :
-${request.date || "À définir"}
+${date || "À définir"}
 
 Référence :
-${request.id}`;
+SRV-${requestId}`;
 
+      const whatsapp =
+        "https://wa.me/237651715307?text=" +
+        encodeURIComponent(message);
 
-  const whatsapp =
-    "https://wa.me/237651715307?text=" +
-    encodeURIComponent(message);
+      alert(
+        "✅ Demande envoyée avec succès !\n\n" +
+        "Votre demande a été enregistrée chez BRANSERV.\n\n" +
+        "Vous allez être redirigé vers WhatsApp."
+      );
 
+      window.location.href = whatsapp;
 
-  alert(
-    "✅ Demande enregistrée !\n\n" +
-    "Vous allez être redirigé vers WhatsApp."
-  );
+    } catch (error) {
 
+      console.error(
+        "❌ Envoi demande service :",
+        error
+      );
 
-  window.location.href = whatsapp;
+      alert(
+        "❌ La demande n'a pas pu être envoyée.\n\n" +
+        error.message
+      );
 
-});
+      if (button) {
+        button.disabled = false;
+        button.textContent =
+          "📩 Envoyer la demande";
+      }
+    }
 
+  });
 </script>
-
+<script src="theme-v4.js?v=5.0"></script>
+<script src="theme-button-v4.js?v=6.0"></script>
 </body>
 </html>
