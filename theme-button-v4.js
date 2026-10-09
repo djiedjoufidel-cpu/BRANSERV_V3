@@ -1,1 +1,54 @@
-(function(){function init(){if(document.getElementById("branservThemeButton"))return;var b=document.createElement("button");b.id="branservThemeButton";b.type="button";b.textContent="🌙";b.style.cssText="position:fixed;right:18px;bottom:18px;width:52px;height:52px;border:0;border-radius:50%;z-index:2147483647;font-size:23px;background:#0b1f3a;color:#fff;cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,.35)";var s=document.createElement("style");s.id="branservThemeDirect";s.textContent="html.br-dark body,html.br-dark body header,html.br-dark body nav,html.br-dark body main,html.br-dark body section,html.br-dark body footer{background:#101418!important;color:#f5f7fb!important}html.br-dark body div,html.br-dark body article,html.br-dark body .card,html.br-dark body .product-card,html.br-dark body .service-card,html.br-dark body .admin-card{background:#181e25!important;color:#f5f7fb!important}html.br-dark body h1,html.br-dark body h2,html.br-dark body h3,html.br-dark body h4,html.br-dark body p,html.br-dark body span,html.br-dark body label,html.br-dark body li{color:#f5f7fb!important}html.br-dark body input,html.br-dark body textarea,html.br-dark body select{background:#202731!important;color:#fff!important}html.br-dark body a{color:#ffb000!important}";document.head.appendChild(s);function toggle(){var d=document.documentElement.classList.toggle("br-dark");localStorage.setItem("branserv_direct_theme",d?"dark":"light");b.textContent=d?"☀️":"🌙"}if(localStorage.getItem("branserv_direct_theme")==="dark"){document.documentElement.classList.add("br-dark");b.textContent="☀️"}b.onclick=toggle;document.body.appendChild(b)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init()})();
+(function () {
+  "use strict";
+
+  function init() {
+    if (document.getElementById("branservThemeButton")) return;
+
+    var button = document.createElement("button");
+    button.id = "branservThemeButton";
+    button.type = "button";
+    button.setAttribute("data-theme-toggle", "");
+    button.setAttribute("aria-label", "Changer le thème clair ou sombre");
+
+    button.style.cssText = [
+      "position:fixed",
+      "right:18px",
+      "bottom:18px",
+      "width:52px",
+      "height:52px",
+      "border:0",
+      "border-radius:50%",
+      "z-index:2147483647",
+      "font-size:23px",
+      "background:#087f8c",
+      "color:#fff",
+      "cursor:pointer",
+      "box-shadow:0 8px 25px rgba(0,0,0,.25)"
+    ].join(";");
+
+    function updateIcon() {
+      var dark =
+        document.documentElement.dataset.branservTheme === "dark";
+      button.textContent = dark ? "☀️" : "🌙";
+      button.title = dark ? "Activer le thème clair" : "Activer le thème sombre";
+    }
+
+    button.addEventListener("click", function () {
+      if (typeof window.branservToggleTheme === "function") {
+        window.branservToggleTheme();
+        updateIcon();
+      } else {
+        console.error("BRANSERV : moteur du thème non chargé.");
+      }
+    });
+
+    document.body.appendChild(button);
+    updateIcon();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

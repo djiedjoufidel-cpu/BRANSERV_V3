@@ -1131,12 +1131,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       .dashboard-warning {
         color:#b71c1c;
-        font-weight:700;
+        font-weight:800;
       }
 
       .dashboard-success {
         color:#16803c;
-        font-weight:700;
+        font-weight:800;
       }
 
       .dashboard-empty {
@@ -1789,13 +1789,19 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+      if (typeof window.loadBranservCustomers === "function") {
+        window.loadBranservCustomers();
+      }
+    }, 300);
+  });
+
   window.loadBranservCustomers = loadBranservCustomers;
   window.renderBranservCustomers = renderBranservCustomers;
 
   document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(function () {
-      loadBranservCustomers();
-    }, 1800);
+    /* ANCIEN CHARGEMENT CLIENTS DESACTIVE : BRANSERV CLIENTS V2 gere maintenant le chargement */
   });
 
 })();
@@ -2014,7 +2020,7 @@ document.addEventListener("DOMContentLoaded", function () {
               👤 ${bcEscape(customer.name || 'Client')}
             </strong>
 
-            <div style="display:inline-block;background:#F43F5E;color:#fff;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:800;white-space:nowrap;">🟢 TEST FICHE CLIENT</div>
+            <div style="display:inline-block;background:#F43F5E;color:#fff;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:800;white-space:nowrap;">👁️ Fiche client</div>
 
           </div>
 
@@ -2147,12 +2153,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 style="
                   display:inline-block;
                   margin-top:12px;
-                  padding:10px 14px;
+                  padding:14px 22px;
                   background:#4C1D95;
                   color:#fff;
                   border-radius:10px;
                   text-decoration:none;
-                  font-weight:700;
+                  font-weight:800;
                 "
               >
                 🧾 Ouvrir la facture

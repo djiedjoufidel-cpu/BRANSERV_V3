@@ -1616,3 +1616,71 @@ html.br-dark ::-webkit-scrollbar-thumb {
   }
 }
 
+
+/* ==================================================
+   BRANSERV ADMIN — HARMONISATION AVEC L'ACCUEIL
+   Palette : #087F8C / #075F69
+   ================================================== */
+
+body:has(script[src*="admin-supabase.js"]) {
+  --branserv-primary: #087f8c;
+  --branserv-primary-dark: #075f69;
+  --branserv-bg: #f3f8f9;
+  --branserv-card: #ffffff;
+  --branserv-border: #dce8e9;
+  background: var(--branserv-bg);
+  color: #17252b;
+}
+
+body:has(script[src*="admin-supabase.js"]) header {
+  background: var(--branserv-primary-dark);
+  color: #ffffff;
+}
+
+body:has(script[src*="admin-supabase.js"]) header a,
+body:has(script[src*="admin-supabase.js"]) nav a {
+  color: #ffffff;
+}
+
+body:has(script[src*="admin-supabase.js"]) .admin-card,
+body:has(script[src*="admin-supabase.js"]) .stat-card,
+body:has(script[src*="admin-supabase.js"]) .admin-product {
+  background: var(--branserv-card);
+  color: #17252b;
+  border: 1px solid var(--branserv-border);
+  border-radius: 14px;
+}
+
+body:has(script[src*="admin-supabase.js"]) .btn-primary,
+body:has(script[src*="admin-supabase.js"]) button[type="submit"] {
+  background: var(--branserv-primary);
+  border-color: var(--branserv-primary);
+  color: #ffffff;
+}
+
+body:has(script[src*="admin-supabase.js"]) .btn-primary:hover,
+body:has(script[src*="admin-supabase.js"]) button[type="submit"]:hover {
+  background: var(--branserv-primary-dark);
+  border-color: var(--branserv-primary-dark);
+}
+
+body:has(script[src*="admin-supabase.js"]) input,
+body:has(script[src*="admin-supabase.js"]) select,
+body:has(script[src*="admin-supabase.js"]) textarea {
+  border-color: var(--branserv-border);
+  border-radius: 8px;
+}
+
+body:has(script[src*="admin-supabase.js"]) input:focus,
+body:has(script[src*="admin-supabase.js"]) select:focus,
+body:has(script[src*="admin-supabase.js"]) textarea:focus {
+  outline: 2px solid #087f8c;
+  outline-offset: 1px;
+}
+
+@media (max-width: 600px) {
+  body:has(script[src*="admin-supabase.js"]) .admin-card,
+  body:has(script[src*="admin-supabase.js"]) .stat-card {
+    border-radius: 12px;
+  }
+}

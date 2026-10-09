@@ -4,8 +4,7 @@
 <!-- BRANSERV V4 SEO -->
 <meta name="description" content="Découvrez les produits disponibles chez BRANSERV au Cameroun : vêtements, chaussures, accessoires et autres produits.">
 <meta name="keywords" content="BRANSERV produits, boutique Cameroun, produits Yaoundé, vêtements, chaussures, accessoires">
-<meta name="author" content="Brandon et ChatGPT">
-<meta name="theme-color" content="#0b1f3a">
+<meta name="theme-color" content="#087f8c">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Produits — BRANSERV Cameroun">
 <meta property="og:description" content="Découvrez les produits disponibles chez BRANSERV et commandez facilement.">
@@ -19,229 +18,121 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:Arial,sans-serif;
-  background:#f5f5f5;
-  color:#111;
-}
-header{
-  background:#111;
-  color:white;
-  padding:15px 5%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-.logo{
-  color:#ffd400;
-  font-size:25px;
-  font-weight:900;
-  text-decoration:none;
-}
-nav{
-  display:flex;
-  gap:18px;
-  flex-wrap:wrap;
-}
-nav a{
-  color:white;
-  text-decoration:none;
-  font-weight:bold;
-}
-nav a:hover{color:#ffd400}
-
-.hero{
-  background:linear-gradient(135deg,#111,#292929);
-  color:white;
-  padding:45px 5%;
-  text-align:center;
-}
-.hero h1{
-  font-size:38px;
-  margin-bottom:10px;
-}
-.hero p{color:#ddd}
-
-.container{
-  width:92%;
-  max-width:1200px;
-  margin:30px auto;
-}
-
-.tools{
-  background:white;
-  padding:18px;
-  border-radius:15px;
-  box-shadow:0 4px 15px #00000012;
-  display:grid;
-  grid-template-columns:2fr 1fr 1fr;
-  gap:12px;
-  margin-bottom:18px;
-}
-input,select{
-  width:100%;
-  padding:13px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:15px;
-  outline:none;
-}
-input:focus,select:focus{border-color:#ffd400}
-
-.categories{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:25px;
-}
-.cat{
-  border:0;
-  background:white;
-  padding:10px 15px;
-  border-radius:30px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.cat.active,.cat:hover{
-  background:#ffd400;
-}
-
-.products{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:20px;
-}
-
-.card{
-  background:white;
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 5px 18px #00000012;
-  transition:.2s;
-}
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 8px 25px #00000020;
-}
-.image{
-  height:220px;
-  background:#eee;
-  position:relative;
-  overflow:hidden;
-}
-.image img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-.promo{
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:#e53935;
-  color:white;
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-}
+body{font-family:Arial,Helvetica,sans-serif;background:#f4fafa;color:#17252b;line-height:1.5}
+header{background:#087f8c;color:#fff;padding:14px 5%;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:1000;box-shadow:0 2px 10px #0002}
+.logo{color:#fff;font-size:26px;font-weight:900;text-decoration:none;letter-spacing:.5px}
+nav{display:flex;gap:22px;flex-wrap:wrap}
+nav a{color:#fff;text-decoration:none;font-weight:600}
+nav a:hover{color:#b9f3f1}
+.hero{background:linear-gradient(135deg,#0b9aa8,#087f8c);color:#fff;padding:48px 5%;text-align:left}
+.hero h1{font-size:38px;margin-bottom:8px}
+.hero p{color:#e6ffff;font-size:17px}
+.container{width:92%;max-width:1200px;margin:30px auto}
+.tools{background:#fff;padding:16px;border-radius:10px;border:1px solid #dce8e9;box-shadow:0 3px 12px #0000000d;display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:18px}
+input,select{width:100%;padding:13px;border:1px solid #cbdadc;border-radius:7px;font-size:15px;outline:none;background:#fff;color:#17252b}
+input:focus,select:focus{border-color:#078a96;box-shadow:0 0 0 3px #078a9618}
+.categories{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:25px}
+.cat{border:1px solid #d1e0e2;background:#fff;padding:9px 15px;border-radius:20px;cursor:pointer;font-weight:600;color:#355057}
+.cat.active,.cat:hover{background:#087f8c;color:#fff;border-color:#087f8c}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:#fff;border:1px solid #e0e8e9;border-radius:9px;overflow:hidden;box-shadow:0 3px 12px #0000000d;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 22px #00000018}
+.image{height:220px;background:#eef5f5;position:relative;overflow:hidden}
+.image img{width:100%;height:100%;object-fit:cover;display:block}
+.promo{position:absolute;top:10px;left:10px;background:#e35d5d;color:#fff;padding:5px 9px;border-radius:4px;font-size:12px;font-weight:700}
 .info{padding:15px}
-.name{
-  font-size:18px;
-  font-weight:bold;
-  margin-bottom:8px;
-}
-.category{
-  color:#777;
-  font-size:13px;
-  margin-bottom:10px;
-}
-.price{
-  color:#111;
-  font-size:21px;
-  font-weight:900;
-}
-.old{
-  color:#999;
-  text-decoration:line-through;
-  font-size:14px;
-  margin-left:6px;
-}
-.stock{
-  margin:10px 0;
-  font-size:13px;
-}
-.btn{
-  width:100%;
-  border:0;
-  background:#ffd400;
-  padding:12px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:900;
-}
-.btn:hover{background:#eabd00}
-.btn:disabled{
-  background:#ddd;
-  cursor:not-allowed;
-}
-
-.empty{
-  background:white;
-  padding:40px;
-  text-align:center;
-  border-radius:15px;
-  grid-column:1/-1;
-}
-
-.whatsapp{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:#25d366;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  font-size:25px;
-  box-shadow:0 5px 20px #0003;
-  z-index:20;
-}
-
-footer{
-  margin-top:50px;
-  background:#111;
-  color:white;
-  text-align:center;
-  padding:30px 15px;
-}
-footer strong{color:#ffd400}
-
-@media(max-width:900px){
-  .products{grid-template-columns:repeat(3,1fr)}
-}
-@media(max-width:700px){
-  header{flex-direction:column}
-  nav{justify-content:center}
-  .tools{grid-template-columns:1fr}
-  .products{grid-template-columns:repeat(2,1fr);gap:12px}
-  .image{height:180px}
-  .hero h1{font-size:30px}
-}
-@media(max-width:430px){
-  .products{grid-template-columns:1fr}
-  .image{height:230px}
-}
+.name{font-size:17px;font-weight:700;margin-bottom:6px;color:#17252b}
+.category{color:#72868c;font-size:12px;margin-bottom:9px}
+.price{color:#087f8c;font-size:21px;font-weight:800}
+.old{color:#94a1a5;text-decoration:line-through;font-size:13px;margin-left:6px}
+.stock{margin:10px 0;font-size:12px;color:#566b70}
+.btn{width:100%;border:0;background:#087f8c;color:#fff;padding:12px;border-radius:6px;cursor:pointer;font-weight:700}
+.btn:hover{background:#066b75}
+.btn:disabled{background:#dce3e4;color:#7d898c;cursor:not-allowed}
+.empty{background:#fff;padding:40px;text-align:center;border-radius:10px;border:1px solid #e0e8e9;grid-column:1/-1}
+.whatsapp{position:fixed;right:20px;bottom:20px;width:55px;height:55px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:24px;box-shadow:0 5px 20px #0003;z-index:2000}
+footer{margin-top:50px;background:#075f69;color:#fff;text-align:center;padding:30px 15px}
+footer strong{color:#a7eeea}
+@media(max-width:900px){.products{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){header{flex-direction:column;padding:13px 4%}.tools{grid-template-columns:1fr}.products{grid-template-columns:repeat(2,1fr);gap:12px}.image{height:190px}.hero h1{font-size:30px}.hero{text-align:center}}
+@media(max-width:430px){nav{gap:12px;font-size:13px}.products{grid-template-columns:1fr 1fr}.image{height:175px}.name{font-size:15px}.price{font-size:18px}.info{padding:11px}}
 </style>
 <link rel="manifest" href="manifest.json">
+
+<style id="branserv-search-suggestions">
+.search-main { position: relative; }
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 390px;
+  overflow-y: auto;
+  background: #fff;
+  color: #17252b;
+  border: 1px solid #dce8e9;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.15);
+}
+.search-suggestions[hidden] { display: none; }
+.search-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #edf1f2;
+  background: #fff;
+  color: #17252b;
+  text-align: left;
+  cursor: pointer;
+}
+.search-suggestion:last-child { border-bottom: 0; }
+.search-suggestion:hover,
+.search-suggestion:focus {
+  background: #f0f8f8;
+  outline: 2px solid #087f8c;
+  outline-offset: -2px;
+}
+.search-suggestion img {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f3f8f9;
+}
+.search-suggestion-info { min-width: 0; flex: 1; }
+.search-suggestion-name {
+  display: block;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.search-suggestion-category {
+  display: block;
+  margin-top: 3px;
+  color: #627277;
+  font-size: 12px;
+}
+.search-suggestion-price {
+  color: #087f8c;
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.search-suggestion-empty {
+  padding: 14px;
+  color: #627277;
+}
+@media(max-width:480px) {
+  .search-suggestion { gap: 8px; padding: 9px; }
+  .search-suggestion img { width: 44px; height: 44px; flex-basis: 44px; }
+  .search-suggestion-price { font-size: 12px; }
+}
+</style>
+
 </head>
 
 <body>
@@ -259,32 +150,67 @@ footer strong{color:#ffd400}
 </header>
 
 <section class="hero">
-<h1>Nos produits</h1>
-<p>Découvrez les produits disponibles chez BRANSERV à Yaoundé.</p>
+  <div class="hero-inner">
+    <div class="breadcrumb">Accueil &nbsp;›&nbsp; Produits</div>
+    <h1>Nos produits</h1>
+    <p>Découvrez les produits disponibles chez BRANSERV à Yaoundé.</p>
+  </div>
 </section>
 
 <main class="container">
 
-<div class="tools">
-<input id="search" type="search" placeholder="🔎 Rechercher un produit...">
+  <div class="catalog-title">
+    <div>
+      <span class="catalog-kicker">BOUTIQUE BRANSERV</span>
+      <h2>Notre catalogue</h2>
+      <p>Trouvez rapidement le produit qui vous convient.</p>
+    </div>
+  </div>
 
-<select id="category">
-<option value="">Toutes les catégories</option>
-</select>
+  <div class="search-main">
+    <span>🔎</span>
+    <input id="search" type="search" placeholder="Rechercher un produit, une catégorie...">
+<div id="searchSuggestions" class="search-suggestions" hidden role="listbox"></div>
+  </div>
 
-<select id="sort">
-<option value="new">Plus récents</option>
-<option value="priceAsc">Prix croissant</option>
-<option value="priceDesc">Prix décroissant</option>
-<option value="name">Nom A-Z</option>
-</select>
-</div>
+  <div class="catalog-layout">
 
-<div id="categories" class="categories"></div>
+    <aside class="filters-panel">
+      <div class="filters-header">
+        <strong>Filtres</strong>
+        <span>☰</span>
+      </div>
 
-<div id="products" class="products">
-<div class="empty">Chargement des produits...</div>
-</div>
+      <label for="category">Catégorie</label>
+      <select id="category">
+        <option value="">Toutes les catégories</option>
+      </select>
+
+      <div class="category-title">Catégories</div>
+      <div id="categories" class="categories"></div>
+    </aside>
+
+    <section class="catalog-results">
+      <div class="results-top">
+        <div>
+          <strong>Produits disponibles</strong>
+          <span class="results-subtitle">Découvrez nos offres</span>
+        </div>
+
+        <select id="sort" aria-label="Trier les produits">
+          <option value="new">Plus récents</option>
+          <option value="priceAsc">Prix croissant</option>
+          <option value="priceDesc">Prix décroissant</option>
+          <option value="name">Nom A-Z</option>
+        </select>
+      </div>
+
+      <div id="products" class="products">
+        <div class="empty">Chargement des produits...</div>
+      </div>
+    </section>
+
+  </div>
 
 </main>
 
@@ -447,7 +373,7 @@ function render(){
     const price=Number(p.price||0);
 
     return `
-      <article class="card">
+      <article class="card" data-product-id="${esc(p.id)}">
 
         <div class="image">
           <img
@@ -499,6 +425,73 @@ function render(){
   }).join("");
 }
 
+
+function renderSuggestions() {
+  const input = $("search");
+  const box = $("searchSuggestions");
+  if (!input || !box) return;
+
+  const term = input.value.trim().toLocaleLowerCase("fr");
+  if (term.length < 3) {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+
+  const matches = products.filter(p => {
+    const name = String(p.name || "").toLocaleLowerCase("fr");
+    const category = String(p.category || "").toLocaleLowerCase("fr");
+    return name.includes(term) || category.includes(term);
+  }).slice(0, 6);
+
+  if (!matches.length) {
+    box.innerHTML =
+      '<div class="search-suggestion-empty">Aucun produit correspondant.</div>';
+    box.hidden = false;
+    return;
+  }
+
+  box.innerHTML = matches.map(p => `
+    <button type="button" class="search-suggestion"
+      role="option" data-suggestion-id="${esc(p.id)}">
+      <img src="${esc(getImage(p))}" alt=""
+        loading="lazy"
+        onerror="this.onerror=null;this.src='https://via.placeholder.com/100?text=BRANSERV'">
+      <span class="search-suggestion-info">
+        <span class="search-suggestion-name">${esc(p.name || "Produit")}</span>
+        <span class="search-suggestion-category">${esc(p.category || "Produit")}</span>
+      </span>
+      <span class="search-suggestion-price">${formatPrice(p.price)}</span>
+    </button>
+  `).join("");
+
+  box.hidden = false;
+}
+
+function chooseSuggestion(id) {
+  const product = products.find(p => String(p.id) === String(id));
+  if (!product) return;
+
+  $("search").value = String(product.name || "");
+  selectedCategory = "";
+  $("category").value = "";
+
+  document.querySelectorAll(".cat").forEach(button => {
+    button.classList.toggle("active", !button.dataset.cat);
+  });
+
+  $("searchSuggestions").hidden = true;
+  render();
+
+  const card = Array.from(
+    document.querySelectorAll("#products [data-product-id]")
+  ).find(element => element.dataset.productId === String(product.id));
+
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
 async function loadProducts(){
 
   try{
@@ -537,7 +530,26 @@ async function loadProducts(){
   updateCartCount();
 }
 
-$("search").addEventListener("input",render);
+$("search").addEventListener("input", () => {
+  renderSuggestions();
+  render();
+});
+
+$("searchSuggestions").addEventListener("click", event => {
+  const button = event.target.closest("[data-suggestion-id]");
+  if (button) chooseSuggestion(button.dataset.suggestionId);
+});
+
+document.addEventListener("click", event => {
+  const box = $("searchSuggestions");
+  if (box && !event.target.closest(".search-main")) {
+    box.hidden = true;
+  }
+});
+
+$("search").addEventListener("keydown", event => {
+  if (event.key === "Escape") $("searchSuggestions").hidden = true;
+});
 
 $("sort").addEventListener("change",render);
 
@@ -559,7 +571,7 @@ loadProducts();
 </script>
 
 <script src="theme-v4.js?v=5.0"></script>
-<script src="theme-button-v4.js?v=6.0"></script>
+<script src="theme-button-v4.js?v=7.0"></script>
 <script src="language-v4.js?v=1.0"></script>
 <script src="produits-language-v4.js?v=1.0"></script>
 
