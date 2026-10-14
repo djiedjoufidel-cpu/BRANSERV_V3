@@ -317,7 +317,11 @@ button:disabled{
 
       <div class="invoice-title">
 
-        <h1>FACTURE</h1>
+        <h1 id="documentTitle">FACTURE</h1>
+        <div id="documentStatus"
+             style="margin-top:8px;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-weight:bold;text-align:center;">
+          PRO FORMA — EN ATTENTE DE CONFIRMATION
+        </div>
 
         <div class="invoice-number" id="invoiceNumber">
           —
@@ -373,6 +377,11 @@ button:disabled{
     <div class="total-line">
       <span>Sous-total</span>
       <strong id="subtotal">0 FCFA</strong>
+    </div>
+
+    <div class="total-line" id="discountRow" style="display:none;">
+      <span>Remise</span>
+      <strong id="discountAmount">−0 FCFA</strong>
     </div>
 
     <div class="total-line">

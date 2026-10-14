@@ -1,0 +1,12 @@
+# Secrets locaux
+.env
+.env.*
+!.env.example
+
+# Dépendances Node.js
+node_modules/
+
+# Clés privées
+*.pem
+.vercel
+.env*

@@ -2107,6 +2107,7 @@ document.addEventListener("DOMContentLoaded", function () {
         order =>
           !['rejected', 'abandoned'].includes(order.status)
       );
+      const displayOrders = orders;
 
       const total = validOrders.reduce(
         (sum, order) => sum + Number(order.total || 0),
@@ -2115,7 +2116,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       let ordersHTML = '';
 
-      if (!validOrders.length) {
+      if (!displayOrders.length) {
 
         ordersHTML = `
           <div style="
@@ -2131,7 +2132,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ordersHTML = '<div>';
 
-        for (const order of validOrders) {
+        for (const order of displayOrders) {
 
           const itemsResult = await sb
             .from('order_items')
@@ -2143,7 +2144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           const status = String(order.status || '').toLowerCase();
 
-          const canInvoice = true;
+          const canInvoice = status === "confirmed" || status === "sold";
 
           const invoiceHTML = canInvoice
             ? `
@@ -2244,6 +2245,21 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
 
               ${invoiceHTML}
+
+              <a
+                href="commandes.html"
+                style="
+                  display:inline-block;
+                  margin-top:10px;
+                  margin-left:8px;
+                  padding:12px 16px;
+                  background:#ede9fe;
+                  color:#4c1d95;
+                  border-radius:10px;
+                  text-decoration:none;
+                  font-weight:700;
+                "
+              >⚙️ Gérer dans Commandes</a>
 
             </div>
           `;

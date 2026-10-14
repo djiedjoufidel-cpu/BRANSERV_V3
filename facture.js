@@ -136,8 +136,9 @@ function normalizeSupabaseOrder(order, items) {
   return {
     id: order.id,
     orderNumber:
-      order.invoice ||
-      `BR-${String(order.id).padStart(5, "0")}`,
+      (typeof order.invoice === "string" && order.invoice.trim())
+        ? order.invoice
+        : `BR-${String(order.id).padStart(5, "0")}`,
 
     customerName:
       order.customer_name || "Client",
@@ -152,7 +153,19 @@ function normalizeSupabaseOrder(order, items) {
       order.status || "En attente",
 
     total:
-      Number(order.total || 0),
+      Number(order.total ?? 0),
+
+    delivery_fee:
+      order.delivery_fee == null ? null : Number(order.delivery_fee),
+
+    discount_type:
+      order.discount_type || "none",
+
+    discount_value:
+      Number(order.discount_value ?? 0),
+
+    discount_amount:
+      Number(order.discount_amount ?? 0),
 
     createdAt:
       order.created_at || new Date().toISOString(),
@@ -199,9 +212,9 @@ function formatDate(value) {
 
 function renderInvoice(order) {
   const invoiceNumber =
-    order.orderNumber ||
-    order.invoice ||
-    `BR-${order.id || ""}`;
+    (typeof order.invoice === "string" && order.invoice.trim())
+      ? order.invoice
+      : (order.orderNumber || `BR-${String(order.id || "").padStart(5, "0")}`);
 
   const invoiceNumberEl =
     document.getElementById("invoiceNumber");
@@ -227,6 +240,40 @@ function renderInvoice(order) {
   const totalEl =
     document.getElementById("total");
 
+  const status = String(order.status || "new").toLowerCase();
+  const documentTitle = document.getElementById("documentTitle");
+  const documentStatus = document.getElementById("documentStatus");
+  const pdfButton = document.getElementById("pdfButton");
+
+  let titleText = "FACTURE PRO FORMA";
+  let statusText = "PRO FORMA — EN ATTENTE DE CONFIRMATION";
+
+  if (status === "confirmed") {
+    titleText = "FACTURE PRO FORMA — COMMANDE CONFIRMÉE";
+    statusText = "PRO FORMA — COMMANDE CONFIRMÉE, EN ATTENTE DE VENTE";
+  } else if (status === "sold" || status === "delivered") {
+    titleText = "FACTURE DÉFINITIVE";
+    statusText = "FACTURE DÉFINITIVE";
+  } else if (status === "rejected") {
+    titleText = "COMMANDE REJETÉE";
+    statusText = "COMMANDE REJETÉE — DOCUMENT NON VALABLE";
+  } else if (status === "abandoned") {
+    titleText = "COMMANDE ABANDONNÉE";
+    statusText = "COMMANDE ABANDONNÉE — DOCUMENT NON VALABLE";
+  } else if (status === "returned") {
+    titleText = "FACTURE ANNULÉE — RETOUR";
+    statusText = "VENTE RETOURNÉE — FACTURE ANNULÉE";
+  }
+
+  if (documentTitle) documentTitle.textContent = titleText;
+  if (documentStatus) documentStatus.textContent = statusText;
+  if (pdfButton) {
+    pdfButton.style.display =
+      (status === "rejected" || status === "abandoned" || status === "returned") ? "none" : "";
+  }
+
+  document.title = titleText + " BRANSERV";
+
   if (invoiceNumberEl)
     invoiceNumberEl.textContent = invoiceNumber;
 
@@ -236,15 +283,15 @@ function renderInvoice(order) {
 
   if (clientInfoEl) {
     clientInfoEl.innerHTML = `
-      <strong>${order.customerName || "Client"}</strong><br>
-      ${order.customerPhone || ""}<br>
-      ${order.customerAddress || ""}
+      <strong>${order.customerName || order.customer?.name || "Client"}</strong><br>
+      ${order.customerPhone || order.customer?.phone || ""}<br>
+      ${order.customerAddress || order.customer?.address || [order.customer?.district, order.customer?.city].filter(Boolean).join(", ") || ""}
     `;
   }
 
   if (deliveryInfoEl) {
     deliveryInfoEl.innerHTML = `
-      ${order.customerAddress || "Adresse non renseignée"}
+      ${order.customerAddress || order.customer?.address || [order.customer?.district, order.customer?.city].filter(Boolean).join(", ") || "Adresse non renseignée"}
     `;
   }
 
@@ -258,14 +305,13 @@ function renderInvoice(order) {
 
     items.forEach(item => {
       const quantity = Number(item.quantity || 1);
-      const price = Number(item.price || item.unit_price || 0);
-      const total =
-        Number(item.total || (quantity * price));
+      const price = Number(item.price ?? item.unit_price ?? item.unitPrice ?? 0);
+      const total = Number(item.total ?? item.lineTotal ?? (quantity * price));
 
       const row = document.createElement("tr");
 
       row.innerHTML = `
-        <td>${item.name || item.product_name || "Produit"}</td>
+        <td>${item.name || item.product_name || item.productName || "Produit"}</td>
         <td>${quantity}</td>
         <td>${money(price)}</td>
         <td>${money(total)}</td>
@@ -277,24 +323,37 @@ function renderInvoice(order) {
 
   const subtotal =
     items.reduce((sum, item) => {
-      return sum +
-        Number(
-          item.total ||
-          (
-            Number(item.quantity || 1) *
-            Number(item.price || item.unit_price || 0)
-          )
-        );
+      const quantity = Number(item.quantity || 1);
+      const price = Number(
+        item.price ?? item.unit_price ?? item.unitPrice ?? 0
+      );
+      const lineTotal = Number(
+        item.total ?? item.lineTotal ?? (quantity * price)
+      );
+      return sum + lineTotal;
     }, 0);
 
-  const total =
-    Number(order.total || subtotal);
+  const discountAmount = Math.min(
+    subtotal,
+    Math.max(0, Number(order.discount_amount ?? order.discountAmount ?? 0))
+  );
 
-  const deliveryFee =
-    Math.max(0, total - subtotal);
+  const storedDeliveryFee = order.delivery_fee ?? order.deliveryFee;
+  const storedTotal = Number(order.total ?? 0);
+  const deliveryFee = Math.max(0, storedDeliveryFee != null ? Number(storedDeliveryFee || 0) : Math.max(0, storedTotal + discountAmount - subtotal));
+  const total = Math.max(0, subtotal - discountAmount) + deliveryFee;
+
+  const discountRow = document.getElementById("discountRow");
+  const discountAmountEl = document.getElementById("discountAmount");
 
   if (subtotalEl)
     subtotalEl.textContent = money(subtotal);
+
+  if (discountRow)
+    discountRow.style.display = discountAmount > 0 ? "" : "none";
+
+  if (discountAmountEl)
+    discountAmountEl.textContent = "−" + money(discountAmount);
 
   if (deliveryFeeEl)
     deliveryFeeEl.textContent = money(deliveryFee);
@@ -306,6 +365,17 @@ function renderInvoice(order) {
 /* ------------------------------------------------------------
    Chargement facture
 ------------------------------------------------------------ */
+function scheduleAutoDownloadIfRequested() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("auto") !== "1") return;
+
+  setTimeout(() => {
+    if (typeof window.downloadInvoice === "function") {
+      window.downloadInvoice();
+    }
+  }, 800);
+}
+
 async function loadInvoice() {
   const orderId = getOrderIdFromUrl();
 
@@ -316,60 +386,53 @@ async function loadInvoice() {
     return;
   }
 
-  /* 1. LocalStorage */
+  /* 1. Supabase en priorité */
+  console.log("☁️ Recherche dans Supabase...");
+
+  let supabaseOrder = null;
+
+  try {
+    supabaseOrder = await findSupabaseOrder(orderId);
+  } catch (error) {
+    console.error("Erreur de recherche Supabase :", error);
+  }
+
+  if (supabaseOrder) {
+    const items = await getSupabaseItems(supabaseOrder.id);
+
+    console.log("✅ Commande Supabase trouvée :", supabaseOrder);
+    console.log("📦 Articles :", items);
+
+    const normalized = normalizeSupabaseOrder(supabaseOrder, items);
+
+    factureOrder = normalized;
+    factureItems = normalized.items || [];
+
+    renderInvoice(normalized);
+    showInvoice();
+    scheduleAutoDownloadIfRequested();
+    return;
+  }
+
+  /* 2. LocalStorage uniquement en secours */
+  console.log("⚠️ Commande absente de Supabase, vérification locale...");
+
   const localOrder = findLocalOrder(orderId);
 
   if (localOrder) {
     console.log("✅ Commande trouvée dans localStorage");
 
     factureOrder = localOrder;
-
-    factureItems =
-      localOrder.items ||
-      localOrder.products ||
-      [];
+    factureItems = localOrder.items || localOrder.products || [];
 
     renderInvoice(localOrder);
     showInvoice();
+    scheduleAutoDownloadIfRequested();
     return;
   }
 
-  /* 2. Supabase */
-  console.log("☁️ Recherche dans Supabase...");
-
-  const supabaseOrder =
-    await findSupabaseOrder(orderId);
-
-  if (!supabaseOrder) {
-    console.error("❌ Commande introuvable");
-    showNotFound();
-    return;
-  }
-
-  const items =
-    await getSupabaseItems(supabaseOrder.id);
-
-  console.log(
-    "✅ Commande Supabase trouvée :",
-    supabaseOrder
-  );
-
-  console.log(
-    "📦 Articles :",
-    items
-  );
-
-  const normalized =
-    normalizeSupabaseOrder(
-      supabaseOrder,
-      items
-    );
-
-  factureOrder = normalized;
-  factureItems = normalized.items;
-
-  renderInvoice(normalized);
-  showInvoice();
+  console.error("❌ Commande introuvable");
+  showNotFound();
 }
 
 /* ------------------------------------------------------------
@@ -465,8 +528,7 @@ window.downloadInvoice = async function () {
 
     const options = {
       margin: 0,
-      filename:
-        `Facture-BRANSERV-${number}.pdf`,
+      filename: `${(["sold", "delivered"].includes(String(factureOrder?.status || "").toLowerCase()) ? "Facture-definitive" : String(factureOrder?.status || "").toLowerCase() === "confirmed" ? "Commande-confirmee" : "Pro-forma")}-BRANSERV-${number}.pdf`,
 
       image: {
         type: "jpeg",

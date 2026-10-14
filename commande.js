@@ -174,7 +174,9 @@ async function createSupabaseOrder({
   items,
   total,
   deliveryFee = 0,
-  deliveryMethod = "delivery"
+  deliveryMethod = "delivery",
+  requestedDate,
+  requestedTime
 }) {
   const supabase = getBranservSupabase();
 
@@ -196,6 +198,8 @@ async function createSupabaseOrder({
       delivery_fee: Number(deliveryFee || 0),
       delivery_method: deliveryMethod || "delivery",
       delivery_address: customer.address || null,
+      requested_date: requestedDate || null,
+      requested_time: requestedTime || null,
 
       status: "new",
 
@@ -261,11 +265,30 @@ async function createSupabaseOrder({
    ============================================================ */
 
 async function submitOrder() {
+  let invoiceTab = null;
 
   const cart = getCart();
 
   if (!cart.length) {
     alert("Votre panier est vide.");
+    return;
+  }
+
+  /* ----------------------------------------------------------
+     Date et heure souhaitées
+     ---------------------------------------------------------- */
+
+  const requestedDate = document.getElementById("requestedDate")?.value || "";
+  const requestedTime = document.getElementById("requestedTime")?.value || "";
+
+  if (!requestedDate || !requestedTime) {
+    alert("Veuillez choisir la date et l heure souhaitees.");
+    return;
+  }
+
+  const selectedDateTime = new Date(requestedDate + "T" + requestedTime);
+  if (Number.isNaN(selectedDateTime.getTime()) || selectedDateTime.getTime() < Date.now()) {
+    alert("Choisissez une date et une heure futures.");
     return;
   }
 
@@ -413,6 +436,9 @@ async function submitOrder() {
       .filter(Boolean)
       .join(", ");
 
+  /* Ouvrir l'onglet avant les appels reseau pour limiter le blocage */
+  invoiceTab = window.open("about:blank", "_blank");
+
   /* ----------------------------------------------------------
      CALCUL DES FRAIS DE LIVRAISON
      ---------------------------------------------------------- */
@@ -509,7 +535,9 @@ async function submitOrder() {
 
         total,
         deliveryFee,
-        deliveryMethod: delivery
+        deliveryMethod: delivery,
+        requestedDate,
+        requestedTime
       });
 
     console.log(
@@ -553,6 +581,8 @@ async function submitOrder() {
       },
 
       delivery,
+      requestedDate,
+      requestedTime,
 
       comment,
 
@@ -575,6 +605,12 @@ async function submitOrder() {
     };
 
     saveLocalOrder(order);
+
+    /* Afficher le pro forma de la commande enregistree */
+    if (invoiceTab && !invoiceTab.closed) {
+      invoiceTab.location.href =
+        "facture.html?id=" + encodeURIComponent(orderNumber) + "&auto=1";
+    }
 
     /* --------------------------------------------------------
        WHATSAPP
@@ -611,7 +647,9 @@ async function submitOrder() {
     message +=
       "\nTotal : " +
       money(total) +
-      "\nStatut : Nouvelle";
+      "\nStatut : Nouvelle" +
+      "\nDate souhaitée : " + requestedDate +
+      "\nHeure souhaitée : " + requestedTime;
 
     if (delivery) {
       message +=
@@ -651,13 +689,25 @@ async function submitOrder() {
        WhatsApp
        -------------------------------------------------------- */
 
-    window.location.href =
-      "https://wa.me/" +
-      WHATSAPP +
-      "?text=" +
-      encodeURIComponent(message);
+    const ouvrirWhatsApp = confirm(
+        "Votre commande est déjà enregistrée dans BRANSERV.\n\n" +
+        "Voulez-vous aussi envoyer son récapitulatif sur WhatsApp ?\n\n" +
+        "Choisissez Annuler pour conserver la commande sans ouvrir WhatsApp."
+      );
+
+      if (ouvrirWhatsApp) {
+        window.location.href =
+          "https://wa.me/" +
+          WHATSAPP +
+          "?text=" +
+          encodeURIComponent(message);
+      }
 
   } catch (error) {
+
+    if (invoiceTab && !invoiceTab.closed) {
+      invoiceTab.close();
+    }
 
     console.error(
       "❌ ERREUR COMMANDE :",

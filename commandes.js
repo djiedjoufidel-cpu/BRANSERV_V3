@@ -15,6 +15,13 @@ let supabaseClient = null;
 let allOrders = [];
 let currentFilter = "all";
 
+// Notifications des nouvelles commandes détectées
+let orderNotificationsReady = false;
+let knownOrderIds = new Set();
+let recentOrderNotifications = [];
+let orderPollingActive = false;
+
+
 const STATUS = {
   new: ["🟡 Nouvelle", "status-new"],
   confirmed: ["🔵 Confirmée", "status-confirmed"],
@@ -194,6 +201,135 @@ function statusHTML(status) {
   `;
 }
 
+
+function updateNewAlert() {
+  const box = document.getElementById("newAlert");
+  if (!box) return;
+
+  const pending = allOrders.filter(
+    order => order.status === "new"
+  ).length;
+
+  const recent = recentOrderNotifications.slice(-5).reverse();
+
+  let html = "";
+
+  if (pending > 0) {
+    html += `
+      <div style="padding:12px;margin:10px 0;border-radius:8px;
+                  background:#fff3cd;color:#664d03;border:1px solid #ffecb5">
+        <strong>🔔 ${pending} commande${pending > 1 ? "s" : ""} en attente</strong>
+      </div>
+    `;
+  }
+
+  if (recent.length > 0) {
+    html += `
+      <div style="padding:12px;margin:10px 0;border-radius:8px;
+                  background:#d1e7dd;color:#0f5132;border:1px solid #badbcc">
+        <strong>🆕 Nouvelle${recent.length > 1 ? "s" : ""} commande${recent.length > 1 ? "s" : ""} détectée${recent.length > 1 ? "s" : ""}</strong>
+        <ul style="margin:8px 0 0;padding-left:20px">
+          ${recent.map(item => `
+            <li>Commande #${safe(item.id)} — ${safe(item.name)}</li>
+          `).join("")}
+        </ul>
+      </div>
+    `;
+  }
+
+  box.innerHTML = html;
+}
+
+async function checkForNewOrders() {
+  if (orderPollingActive) return;
+  orderPollingActive = true;
+
+  try {
+    const previousIds = new Set(knownOrderIds);
+
+    await loadOrdersFromSupabase();
+
+    const currentIds = new Set(
+      allOrders.map(order => String(order.id))
+    );
+
+    if (orderNotificationsReady) {
+      const arrivals = allOrders.filter(order =>
+        order.status === "new" &&
+        !previousIds.has(String(order.id))
+      );
+
+      for (const order of arrivals) {
+        const orderId = String(order.id);
+        const customerName = String(
+          order.customer_name ||
+          (order.customer && order.customer.name) ||
+          "Client"
+        );
+
+        recentOrderNotifications.push({
+          id: orderId,
+          name: customerName
+        });
+
+        // Envoi push : l'API vérifie elle-même les droits administrateur.
+        try {
+          const client = getClient();
+          const sessionResult = await client.auth.getSession();
+          const token = sessionResult &&
+            sessionResult.data &&
+            sessionResult.data.session &&
+            sessionResult.data.session.access_token;
+
+          if (token) {
+            const sentKey = "branserv_push_sent_" + orderId;
+            if (!sessionStorage.getItem(sentKey)) {
+              const response = await fetch("/api/push/send", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                  title: "Nouvelle commande BRANSERV",
+                  body: "Commande de " + customerName,
+                  url: "/commandes.html"
+                })
+              });
+
+              if (response.ok) {
+                sessionStorage.setItem(sentKey, "1");
+              } else {
+                console.error(
+                  "Envoi push échoué :",
+                  response.status,
+                  await response.text()
+                );
+              }
+            }
+          }
+        } catch (pushError) {
+          console.error("Erreur notification push :", pushError);
+        }
+      }
+
+      recentOrderNotifications =
+        recentOrderNotifications.slice(-10);
+    } else {
+      // Le premier chargement sert de référence :
+      // les anciennes commandes ne déclenchent pas d'alerte.
+      orderNotificationsReady = true;
+    }
+
+    knownOrderIds = currentIds;
+    updateNewAlert();
+  } catch (error) {
+    console.error("Vérification des nouvelles commandes :", error);
+  } finally {
+    orderPollingActive = false;
+  }
+}
+
 function renderOrders() {
 
   const container =
@@ -291,6 +427,35 @@ function renderOrders() {
     if (order.status === "new") {
 
       buttons = `
+        <div style="margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:10px;">
+          <strong>🏷️ Remise avant confirmation</strong>
+
+          <label style="display:block;margin-top:8px;">Type de remise</label>
+          <select
+            id="discount-type-${order.id}"
+            onchange="updateDiscountPreview(${order.id})"
+            style="width:100%;padding:10px;margin:5px 0;">
+            <option value="none">Aucune remise</option>
+            <option value="fixed">Montant fixe (FCFA)</option>
+            <option value="percent">Pourcentage (%)</option>
+          </select>
+
+          <label style="display:block;">Montant ou pourcentage</label>
+          <input
+            id="discount-value-${order.id}"
+            type="number"
+            min="0"
+            step="any"
+            value="${Number(order.discount_value || 0)}"
+            placeholder="Ex. : 1000 ou 10"
+            oninput="updateDiscountPreview(${order.id})"
+            style="width:100%;box-sizing:border-box;padding:10px;margin:5px 0;">
+
+          <small id="discount-preview-${order.id}" style="display:block;margin-top:6px;">
+            Total actuel : ${money(order.total)}
+          </small>
+        </div>
+
         <button
           class="btn-confirm"
           onclick="confirmOrder(${order.id})">
@@ -451,53 +616,166 @@ function renderOrders() {
   updateNewAlert();
 }
 
-/* =========================================================
-   ALERTES
+/* ==/* =========================================================
+   CALCUL ET APERCU DE LA REMISE
    ========================================================= */
 
-function updateNewAlert() {
+function calculateOrderDiscount(order, type, rawValue) {
+  const subtotal = (order.items || []).reduce(
+    (sum, item) => sum + Number(item.total || 0),
+    0
+  );
 
-  const element =
-    document.getElementById("newAlert");
+  const deliveryFee = Math.max(0, Number(order.delivery_fee || 0));
+  const value = Number(rawValue || 0);
 
-  if (!element) return;
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error("La remise doit être un nombre positif ou nul.");
+  }
 
-  const count =
-    allOrders.filter(
-      order => order.status === "new"
-    ).length;
+  let discountAmount = 0;
 
-  element.innerHTML =
-    count > 0
-      ? `
-        <div class="new-order-alert">
-          🔔 ${count}
-          nouvelle${count > 1 ? "s" : ""}
-          commande${count > 1 ? "s" : ""}
-        </div>
-      `
-      : "";
+  if (type === "fixed") {
+    if (value > subtotal) {
+      throw new Error("La remise ne peut pas dépasser le prix des produits.");
+    }
+    discountAmount = value;
+  } else if (type === "percent") {
+    if (value > 100) {
+      throw new Error("Le pourcentage doit être compris entre 0 et 100.");
+    }
+    discountAmount = subtotal * value / 100;
+  } else if (type !== "none") {
+    throw new Error("Type de remise invalide.");
+  }
+
+  discountAmount = Math.round(discountAmount);
+  const total = Math.max(0, subtotal - discountAmount) + deliveryFee;
+
+  return {
+    subtotal,
+    deliveryFee,
+    discountType: type,
+    discountValue: type === "none" ? 0 : value,
+    discountAmount,
+    total
+  };
+}
+
+function updateDiscountPreview(id) {
+  const order = findOrder(id);
+  if (!order) return;
+
+  const typeElement = document.getElementById("discount-type-" + id);
+  const valueElement = document.getElementById("discount-value-" + id);
+  const preview = document.getElementById("discount-preview-" + id);
+
+  if (!typeElement || !valueElement || !preview) return;
+
+  try {
+    const result = calculateOrderDiscount(
+      order,
+      typeElement.value,
+      valueElement.value
+    );
+
+    preview.textContent =
+      "Produits : " + money(result.subtotal) +
+      " | Remise : −" + money(result.discountAmount) +
+      " | Livraison : " + money(result.deliveryFee) +
+      " | Total à payer : " + money(result.total);
+
+    preview.style.color = "#166534";
+  } catch (error) {
+    preview.textContent = error.message;
+    preview.style.color = "#b91c1c";
+  }
 }
 
 /* =========================================================
-   FILTRES
+   CONFIRMER
    ========================================================= */
 
-function setFilter(filter, button) {
+async function confirmOrder(id) {
+  const order = findOrder(id);
 
-  currentFilter = filter;
-
-  document
-    .querySelectorAll(".filters button")
-    .forEach(btn => {
-      btn.classList.remove("active");
-    });
-
-  if (button) {
-    button.classList.add("active");
+  if (!order) {
+    alert("❌ Commande introuvable.");
+    return;
   }
 
-  renderOrders();
+  if (order.status !== "new") {
+    alert("⚠️ Cette commande n'est plus en attente.");
+    return;
+  }
+
+  const typeElement = document.getElementById("discount-type-" + id);
+  const valueElement = document.getElementById("discount-value-" + id);
+
+  let discount;
+
+  try {
+    discount = calculateOrderDiscount(
+      order,
+      typeElement ? typeElement.value : "none",
+      valueElement ? valueElement.value : 0
+    );
+  } catch (error) {
+    alert("❌ Remise invalide : " + error.message);
+    return;
+  }
+
+  const message =
+    "Confirmer cette commande ?\n\n" +
+    "Sous-total produits : " + money(discount.subtotal) + "\n" +
+    "Remise : −" + money(discount.discountAmount) + "\n" +
+    "Livraison : " + money(discount.deliveryFee) + "\n" +
+    "TOTAL À PAYER : " + money(discount.total);
+
+  if (!confirm(message)) return;
+
+  try {
+    const client = getClient();
+
+    const { data, error } = await client
+      .from("orders")
+      .update({
+        status: "confirmed",
+        total: discount.total,
+        discount_type: discount.discountType,
+        discount_value: discount.discountValue,
+        discount_amount: discount.discountAmount
+      })
+      .eq("id", order.id)
+      .eq("status", "new")
+      .select("id")
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error(
+        "La commande a peut-être déjà été modifiée. Recharge les commandes avant de réessayer."
+      );
+    }
+
+    order.status = "confirmed";
+    order.total = discount.total;
+    order.discount_type = discount.discountType;
+    order.discount_value = discount.discountValue;
+    order.discount_amount = discount.discountAmount;
+
+    renderOrders();
+
+    alert("✅ Commande confirmée avec la remise enregistrée.");
+
+  } catch (error) {
+    console.error("Erreur confirmation/remise :", error);
+    alert(
+      "❌ Impossible de confirmer la commande.\n\n" +
+      (error.message || error)
+    );
+  }
 }
 
 /* =========================================================
@@ -509,65 +787,6 @@ function findOrder(id) {
   return allOrders.find(
     order => String(order.id) === String(id)
   );
-}
-
-/* =========================================================
-   CONFIRMER
-   ========================================================= */
-
-async function confirmOrder(id) {
-
-  const order = findOrder(id);
-
-  if (!order) {
-    alert("❌ Commande introuvable.");
-    return;
-  }
-
-  if (order.status !== "new") {
-    alert(
-      "⚠️ Cette commande n'est plus nouvelle."
-    );
-    return;
-  }
-
-  if (
-    !confirm(
-      "Valider cette commande ?"
-    )
-  ) {
-    return;
-  }
-
-  try {
-
-    const client = getClient();
-
-    const { error } =
-      await client
-        .from("orders")
-        .update({
-          status: "confirmed"
-        })
-        .eq("id", order.id);
-
-    if (error) throw error;
-
-    order.status = "confirmed";
-
-    renderOrders();
-
-    alert("✅ Commande validée.");
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "❌ Impossible de valider la commande.\n\n" +
-      error.message
-    );
-  }
 }
 
 /* =========================================================
@@ -635,10 +854,7 @@ async function sellOrder(id) {
     return;
   }
 
-  if (
-    order.status !== "new" &&
-    order.status !== "confirmed"
-  ) {
+  if (order.status !== "confirmed") {
     alert(
       "⚠️ Cette commande ne peut plus être vendue."
     );
@@ -775,60 +991,54 @@ async function sellOrder(id) {
         );
     }
 
-    const total =
-      Number(order.total || 0);
+    const total = Number(order.total || 0);
+    const deliveryFee = Math.max(0, Number(order.delivery_fee || 0));
+    const productRevenue = Math.max(0, total - deliveryFee);
+    const profit = total - costTotal;
 
-    const profit =
-      total - costTotal;
+    /* Enregistrement des ventes avec remise répartie */
+    const subtotal = order.items.reduce((sum, item) => {
+      const qty = Number(item.quantity || 0);
+      return sum + Number(item.total || (Number(item.unitPrice || 0) * qty));
+    }, 0);
 
-    /*
-      Enregistrement des ventes
-    */
+    let allocatedRevenue = 0;
 
-    for (const item of order.items) {
+    for (let index = 0; index < order.items.length; index++) {
+      const item = order.items[index];
+      const product = products.find(
+        p => Number(p.id) === Number(item.productId)
+      );
+      const quantity = Number(item.quantity || 0);
+      const purchasePrice = Number(product.purchase_price || 0);
+      const originalLineTotal = Number(
+        item.total || (Number(item.unitPrice || 0) * quantity)
+      );
 
-      const product =
-        products.find(
-          p =>
-            Number(p.id) ===
-            Number(item.productId)
-        );
+      const saleTotal = index === order.items.length - 1
+        ? productRevenue - allocatedRevenue
+        : Math.round((subtotal > 0 ? originalLineTotal / subtotal : 0) * productRevenue);
 
-      const quantity =
-        Number(item.quantity || 0);
+      allocatedRevenue += saleTotal;
+      const salePrice = quantity > 0 ? saleTotal / quantity : 0;
+      const saleProfit = saleTotal - purchasePrice * quantity;
 
-      const purchasePrice =
-        Number(
-          product.purchase_price || 0
-        );
+      const { error } = await client
+        .from("sales")
+        .insert({
+          order_id: order.id,
+          product_id: product.id,
+          product_name: product.name,
+          quantity: quantity,
+          sale_price: salePrice,
+          purchase_price: purchasePrice,
+          total: saleTotal,
+          profit: saleProfit,
+          status: "sold",
+          sold_at: new Date().toISOString()
+        });
 
-      const saleTotal =
-        Number(item.unitPrice || 0) *
-        quantity;
-
-      const saleProfit =
-        saleTotal -
-        purchasePrice * quantity;
-
-      const { error } =
-        await client
-          .from("sales")
-          .insert({
-            order_id: order.id,
-            product_id: product.id,
-            product_name: product.name,
-            quantity: quantity,
-            sale_price: Number(item.unitPrice || 0),
-            purchase_price: purchasePrice,
-            total: saleTotal,
-            profit: saleProfit,
-            status: "sold",
-            sold_at: new Date().toISOString()
-          });
-
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
     }
 
     /*
@@ -1070,6 +1280,15 @@ document.addEventListener(
     try {
 
       await loadOrdersFromSupabase();
+
+      // Vérification automatique toutes les 30 secondes
+      knownOrderIds = new Set(
+        allOrders.map(order => String(order.id))
+      );
+      orderNotificationsReady = true;
+
+      window.setInterval(checkForNewOrders, 30000);
+
 
     } catch (error) {
 

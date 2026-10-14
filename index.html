@@ -929,5 +929,105 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+
+<style>
+#branserv-install-banner {
+  position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 99999;
+  display: none; align-items: center; gap: 12px; padding: 14px;
+  background: #075f69; color: #fff; border-radius: 14px;
+  box-shadow: 0 5px 24px rgba(0,0,0,.25);
+  font-family: Arial, sans-serif;
+}
+#branserv-install-banner .bi-text { flex: 1; min-width: 0; }
+#branserv-install-banner .bi-title { font-weight: 700; font-size: 15px; }
+#branserv-install-banner .bi-sub { font-size: 12px; margin-top: 4px; }
+#branserv-install-banner button {
+  border: 0; border-radius: 9px; padding: 10px 12px;
+  font-weight: 700; cursor: pointer; font-size: 13px;
+}
+#branserv-install-button { background: #fff; color: #075f69; }
+#branserv-install-close { background: transparent; color: #fff; padding: 5px !important; }
+@media (max-width: 360px) {
+  #branserv-install-banner { left: 7px; right: 7px; gap: 7px; padding: 10px; }
+  #branserv-install-banner .bi-title { font-size: 13px; }
+}
+</style>
+
+<div id="branserv-install-banner" role="region" aria-label="Installer BRANSERV">
+  <div class="bi-text">
+    <div class="bi-title">Installer BRANSERV</div>
+    <div class="bi-sub">Ajoute la boutique à ton écran d’accueil.</div>
+  </div>
+  <button id="branserv-install-button" type="button">Installer</button>
+  <button id="branserv-install-close" type="button" aria-label="Fermer">✕</button>
+</div>
+
+<script>
+(function () {
+  var banner = document.getElementById('branserv-install-banner');
+  var installButton = document.getElementById('branserv-install-button');
+  var closeButton = document.getElementById('branserv-install-close');
+  var installPrompt = null;
+
+  if (!banner || !installButton || !closeButton) return;
+
+  function isInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
+  }
+
+  if (isInstalled()) return;
+
+  function showBanner() {
+    if (!isInstalled()) banner.style.display = 'flex';
+  }
+
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    installPrompt = event;
+    installButton.textContent = 'Installer';
+    showBanner();
+  });
+
+  window.addEventListener('appinstalled', function () {
+    installPrompt = null;
+    banner.style.display = 'none';
+  });
+
+  installButton.addEventListener('click', async function () {
+    if (installPrompt) {
+      installPrompt.prompt();
+      var result = await installPrompt.userChoice;
+      installPrompt = null;
+      if (result && result.outcome === 'accepted') {
+        banner.style.display = 'none';
+      } else {
+        installButton.textContent = 'Réessayer';
+      }
+      return;
+    }
+
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    var isChromeAndroid = /android/i.test(navigator.userAgent);
+
+    if (isIOS) {
+      alert('Pour installer BRANSERV sur iPhone : ouvre le site dans Safari, appuie sur Partager, puis sur « Sur l’écran d’accueil ».');
+    } else if (isChromeAndroid) {
+      alert('Pour installer BRANSERV : ouvre le menu ⋮ de Chrome, puis choisis « Installer l’application » ou « Ajouter à l’écran d’accueil », si cette option est proposée.');
+    } else {
+      alert('Pour installer BRANSERV, ouvre le menu de ton navigateur et cherche « Installer l’application » ou « Ajouter à l’écran d’accueil ». Cette option dépend du navigateur.');
+    }
+  });
+
+  closeButton.addEventListener('click', function () {
+    banner.style.display = 'none';
+  });
+
+  window.addEventListener('load', function () {
+    if (!isInstalled()) showBanner();
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -1,0 +1,12 @@
+body{background:#f4fafa;color:#17252b}
+header{background:#fff;color:#17252b;border-bottom:1px solid #dce8e9}
+header .logo,header nav a{color:#087f8c}
+.hero{background:linear-gradient(135deg,#0b9aa8,#087f8c);color:#fff}
+.hero h1,.hero h1 span,.hero p{color:#fff}
+.hero-card,.choice,.service-card,.products-grid>*{background:#fff;color:#17252b;border:1px solid #dce8e9;border-radius:12px}
+.hero-card h3,.choice h3,.service-card h3{color:#087f8c}
+.btn-primary{background:#087f8c;color:#fff;border-color:#087f8c}
+.btn-secondary{background:#fff;color:#087f8c;border:1px solid #fff}
+.cta{background:#087f8c;color:#fff}
+.cta h2,.cta p,footer h3,footer p,footer a{color:#fff}
+footer{background:#075f69;color:#fff}
