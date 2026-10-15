@@ -110,7 +110,12 @@ module.exports = async function handler(req, res) {
     );
 
     if (!saveResponse.ok) {
-      console.error("Enregistrement de l'abonnement impossible.");
+      const saveError = await saveResponse.text();
+      console.error(
+        "Enregistrement de l'abonnement impossible :",
+        "HTTP", saveResponse.status,
+        saveError.slice(0, 1000)
+      );
       return res.status(500).json({
         error: "Impossible d'enregistrer l'abonnement."
       });
