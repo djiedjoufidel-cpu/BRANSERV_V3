@@ -76,7 +76,10 @@ self.addEventListener("push", event => {
       icon: "./icon-192.png",
       badge: "./icon-192.png",
       data: { url: data.url || "./admin.html" },
-      tag: data.tag || "branserv-notification"
+      tag: data.tag || ("branserv-" + Date.now()),
+      renotify: true,
+      vibrate: [200, 100, 200],
+      requireInteraction: true
     })
   );
 });

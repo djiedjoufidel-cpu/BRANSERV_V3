@@ -586,3 +586,38 @@ document.addEventListener(
   "DOMContentLoaded",
   loadInvoice
 );
+
+/* Retour de proforma avec proposition WhatsApp */
+window.returnFromInvoice = function () {
+  const order = factureOrder;
+  if (!order) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const number = "237651715307";
+  const orderNumber =
+    order.orderNumber ||
+    order.invoice ||
+    ("BR-" + String(order.id || "").padStart(5, "0"));
+
+  let message =
+    "Bonjour BRANSERV 👋\n\nCommande : " + orderNumber +
+    "\nClient : " + (order.customerName || "Client") +
+    "\nTéléphone : " + (order.customerPhone || "") + "\n";
+
+  (factureItems || []).forEach(item => {
+    message += "\n- " + (item.name || item.productName || item.product_name || "Produit") +
+      " x" + (item.quantity || 1) +
+      " = " + money(item.total ?? item.lineTotal ?? ((item.price || item.unit_price || 0) * (item.quantity || 1)));
+  });
+
+  message += "\n\nTotal : " + money(order.total || 0);
+
+  if (confirm("Voulez-vous envoyer le récapitulatif de cette commande sur WhatsApp ?")) {
+    window.location.href =
+      "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+  } else {
+    window.location.href = "index.html";
+  }
+};

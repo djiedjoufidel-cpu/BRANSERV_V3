@@ -55,7 +55,12 @@ module.exports = async function handler(req, res) {
     );
 
     if (!adminResponse.ok) {
-      console.error("Vérification administrateur impossible.");
+      const details = await adminResponse.text();
+      console.error(
+        "Vérification administrateur impossible :",
+        "HTTP", adminResponse.status,
+        details.slice(0, 500)
+      );
       return res.status(500).json({
         error: "Vérification administrateur impossible."
       });

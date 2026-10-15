@@ -17,6 +17,44 @@ let currentFilter = "all";
 
 // Notifications des nouvelles commandes détectées
 let orderNotificationsReady = false;
+
+// Son BRANSERV pour les nouvelles commandes
+let branservAudioContext = null;
+
+function playBranservOrderSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    if (!branservAudioContext) {
+      branservAudioContext = new AudioCtx();
+    }
+
+    if (branservAudioContext.state === "suspended") {
+      branservAudioContext.resume();
+    }
+
+    const oscillator = branservAudioContext.createOscillator();
+    const gain = branservAudioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, branservAudioContext.currentTime);
+    gain.gain.setValueAtTime(0.001, branservAudioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.18, branservAudioContext.currentTime + 0.03
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.001, branservAudioContext.currentTime + 0.35
+    );
+
+    oscillator.connect(gain);
+    gain.connect(branservAudioContext.destination);
+    oscillator.start();
+    oscillator.stop(branservAudioContext.currentTime + 0.36);
+  } catch (error) {
+    console.warn("Son de notification indisponible :", error);
+  }
+}
 let knownOrderIds = new Set();
 let recentOrderNotifications = [];
 let orderPollingActive = false;
@@ -259,6 +297,10 @@ async function checkForNewOrders() {
         !previousIds.has(String(order.id))
       );
 
+      if (arrivals.length > 0) {
+        playBranservOrderSound();
+      }
+
       for (const order of arrivals) {
         const orderId = String(order.id);
         const customerName = String(
@@ -293,7 +335,8 @@ async function checkForNewOrders() {
                 body: JSON.stringify({
                   title: "Nouvelle commande BRANSERV",
                   body: "Commande de " + customerName,
-                  url: "/commandes.html"
+                  url: "/commandes.html",
+                  tag: "branserv-order-" + orderId
                 })
               });
 
