@@ -3,7 +3,7 @@
    Supabase + LocalStorage + WhatsApp
    ============================================================ */
 
-const WHATSAPP = "237651715307";
+
 
 const BRANSERV_SUPABASE_URL =
   "https://lsaykyehbfgfpoqwsmto.supabase.co";
