@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://branserv-v3.vercel.app/</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/produits.html</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/services.html</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=complement-alimentaire</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=cosmetique</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=infographie</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=informatique</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=reparation-ordinateur</loc></url>
+  <url><loc>https://branserv-v3.vercel.app/service.html?service=reparation-telephone</loc></url>
+</urlset>
