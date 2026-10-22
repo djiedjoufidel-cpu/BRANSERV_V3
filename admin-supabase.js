@@ -163,6 +163,8 @@
           return;
         }
 
+        // Autorise uniquement la recharge qui suit une connexion réussie.
+        sessionStorage.setItem("branservAdminLoginJustCompleted", "1");
         location.reload();
 
       } catch (error) {
@@ -187,6 +189,25 @@
   async function init() {
     try {
       await setupLoginForm();
+
+      // Exige une nouvelle connexion à chaque nouvelle ouverture de cette page.
+      const justLoggedIn =
+        sessionStorage.getItem("branservAdminLoginJustCompleted") === "1";
+
+      if (justLoggedIn) {
+        sessionStorage.removeItem("branservAdminLoginJustCompleted");
+      } else {
+        showLogin();
+        const supabase = getClient();
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+          console.error("Erreur de fermeture de l'ancienne session :", error);
+          showError("Impossible de fermer l'ancienne session. Recharge la page.");
+          return;
+        }
+      }
+
       await checkAdmin();
     } catch (error) {
       console.error("Erreur initialisation admin :", error);
