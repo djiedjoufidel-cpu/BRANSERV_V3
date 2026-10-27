@@ -558,8 +558,8 @@ footer{background:#075f69;color:#fff}
 
     <nav>
       <a href="index.html" data-i18n="home">Accueil</a>
-      <a href="produits.html" data-i18n="products">Produits</a>
-      <a href="services.html" data-i18n="services">Services</a>
+      <a href="/produits" data-i18n="products">Produits</a>
+      <a href="/services" data-i18n="services">Services</a>
       <a href="panier.html" data-i18n="cart">Panier 🛒</a>
       <a href="admin.html">Admin</a>
     </nav>
@@ -586,11 +586,11 @@ footer{background:#075f69;color:#fff}
         </p>
 
         <div class="buttons">
-          <a href="produits.html" class="btn btn-primary">
+          <a href="/produits" class="btn btn-primary">
             🛍️ Voir les produits
           </a>
 
-          <a href="services.html" class="btn btn-secondary">
+          <a href="/services" class="btn btn-secondary">
             🛠️ Nos services
           </a>
         </div>
@@ -614,7 +614,7 @@ footer{background:#075f69;color:#fff}
       </div>
 
       <div style="text-align:center;margin-top:30px;">
-        <a href="produits.html" class="btn btn-primary">
+        <a href="/produits" class="btn btn-primary">
           Voir tous les produits →
         </a>
       </div>
@@ -697,8 +697,8 @@ footer{background:#075f69;color:#fff}
     <div>
       <h3>Navigation</h3>
       <p><a href="index.html" data-i18n="home">Accueil</a></p>
-      <p><a href="produits.html" data-i18n="products">Produits</a></p>
-      <p><a href="services.html" data-i18n="services">Services</a></p>
+      <p><a href="/produits" data-i18n="products">Produits</a></p>
+      <p><a href="/services" data-i18n="services">Services</a></p>
       <p><a href="panier.html" data-i18n="cart">Panier</a></p>
     </div>
 
@@ -775,7 +775,7 @@ function renderFeaturedProducts(products) {
       Number(product.price || 0);
 
     return `
-      <a href="produits.html" class="product-card">
+      <a href="/produits" class="product-card">
 
         ${
           product.promo
