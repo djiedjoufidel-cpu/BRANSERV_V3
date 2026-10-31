@@ -72,6 +72,18 @@ padding:20px;
         "
       >
 
+      <div style="display:flex;gap:8px;align-items:center;margin-top:-8px;margin-bottom:16px;">
+        <button type="button" id="branservTogglePassword"
+          style="border:0;background:none;color:#2563eb;padding:4px 0;cursor:pointer;">
+          Afficher le mot de passe
+        </button>
+        <span style="color:#aaa;">|</span>
+        <button type="button" id="branservForgotPassword"
+          style="border:0;background:none;color:#2563eb;padding:4px 0;cursor:pointer;">
+          Mot de passe oublié ?
+        </button>
+      </div>
+
       <button
         type="submit"
         id="branservLoginButton"
@@ -99,6 +111,28 @@ padding:20px;
         font-size:14px;
         "
       ></div>
+    </form>
+    <form id="branservResetPasswordForm" style="display:none;">
+      <h3 style="margin-top:0;text-align:center;">Nouveau mot de passe</h3>
+      <p style="color:#666;text-align:center;font-size:14px;">
+        Choisis un nouveau mot de passe pour ton compte administrateur.
+      </p>
+      <label for="branservNewPassword" style="display:block;margin-bottom:7px;font-weight:600;">
+        Nouveau mot de passe
+      </label>
+      <input id="branservNewPassword" type="password" minlength="6"
+        autocomplete="new-password" required placeholder="Au moins 6 caractères"
+        style="width:100%;box-sizing:border-box;padding:13px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;">
+      <button type="button" id="branservToggleNewPassword"
+        style="border:0;background:none;color:#2563eb;padding:4px 0 14px;cursor:pointer;">
+        Afficher le mot de passe
+      </button>
+      <button type="submit" id="branservSaveNewPassword"
+        style="width:100%;padding:14px;border:0;border-radius:10px;background:#111827;color:white;font-size:16px;font-weight:700;cursor:pointer;">
+        Enregistrer le nouveau mot de passe
+      </button>
+      <div id="branservRecoveryMessage"
+        style="margin-top:15px;text-align:center;font-size:14px;"></div>
     </form>
   </div>
 </div>
@@ -312,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="app.js"></script>
 <script src="theme-v4.js?v=5.0"></script>
 <script src="theme-button-v4.js?v=7.0"></script>
-<script src="admin-supabase.js?v=9"></script>
+<script src="admin-supabase.js?v=10"></script>
 <script src="admin-push.js?v=1"></script>
 <script src="services-admin.js?v=1"></script>
 <script src="branserv-cities-admin.js"></script>

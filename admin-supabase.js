@@ -126,6 +126,154 @@
     return true;
   }
 
+  let isPasswordRecovery = false;
+
+  function showRecoveryForm() {
+    const box = document.getElementById("branservLogin");
+    const loginForm = document.getElementById("branservLoginForm");
+    const resetForm = document.getElementById("branservResetPasswordForm");
+
+    if (box) box.style.display = "flex";
+    if (loginForm) loginForm.style.display = "none";
+    if (resetForm) resetForm.style.display = "block";
+  }
+
+  function isRecoveryUrl() {
+    const params = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    return params.has("code") ||
+      params.get("type") === "recovery" ||
+      hash.get("type") === "recovery";
+  }
+
+  function setupPasswordControls() {
+    const password = document.getElementById("branservPassword");
+    const toggle = document.getElementById("branservTogglePassword");
+
+    if (password && toggle) {
+      toggle.addEventListener("click", function () {
+        const visible = password.type === "password";
+        password.type = visible ? "text" : "password";
+        toggle.textContent = visible
+          ? "Masquer le mot de passe"
+          : "Afficher le mot de passe";
+      });
+    }
+
+    const newPassword = document.getElementById("branservNewPassword");
+    const toggleNew = document.getElementById("branservToggleNewPassword");
+
+    if (newPassword && toggleNew) {
+      toggleNew.addEventListener("click", function () {
+        const visible = newPassword.type === "password";
+        newPassword.type = visible ? "text" : "password";
+        toggleNew.textContent = visible
+          ? "Masquer le mot de passe"
+          : "Afficher le mot de passe";
+      });
+    }
+  }
+
+  function setupPasswordRecovery() {
+    const supabase = getClient();
+    const forgotButton = document.getElementById("branservForgotPassword");
+    const resetForm = document.getElementById("branservResetPasswordForm");
+    const loginForm = document.getElementById("branservLoginForm");
+    const message = document.getElementById("branservRecoveryMessage");
+
+    if (forgotButton) {
+      forgotButton.addEventListener("click", async function () {
+        const email = document.getElementById("branservEmail")?.value.trim();
+
+        if (!email) {
+          showError("Entre ton adresse email administrateur avant de demander la réinitialisation.");
+          document.getElementById("branservEmail")?.focus();
+          return;
+        }
+
+        forgotButton.disabled = true;
+        forgotButton.textContent = "Envoi en cours...";
+        showError("");
+
+        try {
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: "https://branserv-v3.vercel.app/admin.html"
+          });
+
+          if (error) throw error;
+
+          showError("Si cette adresse correspond à un compte, un email de réinitialisation va être envoyé. Vérifie aussi les courriers indésirables.");
+        } catch (error) {
+          console.error("Erreur récupération mot de passe :", error);
+          showError(error.message || "Impossible d'envoyer le lien de réinitialisation.");
+        } finally {
+          forgotButton.disabled = false;
+          forgotButton.textContent = "Mot de passe oublié ?";
+        }
+      });
+    }
+
+    supabase.auth.onAuthStateChange(function (event) {
+      if (event === "PASSWORD_RECOVERY") {
+        isPasswordRecovery = true;
+        showRecoveryForm();
+      }
+    });
+
+    if (resetForm) {
+      resetForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const newPassword = document.getElementById("branservNewPassword").value;
+        const saveButton = document.getElementById("branservSaveNewPassword");
+
+        if (newPassword.length < 6) {
+          if (message) {
+            message.style.color = "#dc2626";
+            message.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+          }
+          return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Enregistrement...";
+
+        try {
+          const { error } = await supabase.auth.updateUser({
+            password: newPassword
+          });
+
+          if (error) throw error;
+
+          await supabase.auth.signOut();
+          isPasswordRecovery = false;
+
+          resetForm.style.display = "none";
+          if (loginForm) loginForm.style.display = "block";
+
+          if (message) {
+            message.style.color = "#15803d";
+            message.textContent = "Mot de passe modifié. Connecte-toi avec ton nouveau mot de passe.";
+          }
+
+          document.getElementById("branservNewPassword").value = "";
+          showLogin();
+        } catch (error) {
+          console.error("Erreur changement mot de passe :", error);
+          if (message) {
+            message.style.color = "#dc2626";
+            message.textContent = error.message || "La modification du mot de passe a échoué.";
+          }
+        } finally {
+          saveButton.disabled = false;
+          saveButton.textContent = "Enregistrer le nouveau mot de passe";
+        }
+      });
+    }
+
+    return isRecoveryUrl();
+  }
+
   async function setupLoginForm() {
     const form = document.getElementById("branservLoginForm");
     if (!form) return;
@@ -189,6 +337,15 @@
   async function init() {
     try {
       await setupLoginForm();
+      setupPasswordControls();
+
+      const recoveryLink = setupPasswordRecovery();
+
+      if (recoveryLink) {
+        isPasswordRecovery = true;
+        showRecoveryForm();
+        return;
+      }
 
       // Exige une nouvelle connexion à chaque nouvelle ouverture de cette page.
       const justLoggedIn =
