@@ -1651,6 +1651,52 @@ document.addEventListener("DOMContentLoaded", function () {
                 ${lowStockProducts.length}
               </strong>
             </div>
+
+            <div style="
+              margin-top:18px;
+              padding:16px;
+              border:1px solid #d9dee7;
+              border-radius:14px;
+              background:#f8fafc;
+            ">
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <img
+                  src="logo-ets-h-promesse.png"
+                  alt="ETS H-PROMESSE"
+                  style="width:65px;height:65px;object-fit:contain;"
+                >
+                <div>
+                  <strong style="display:block;color:#172033;">
+                    ETS H-PROMESSE
+                  </strong>
+                  <span style="font-size:13px;color:#64748b;">
+                    Catalogue des produits
+                  </span>
+                </div>
+              </div>
+
+              <p style="font-size:13px;line-height:1.5;color:#475569;">
+                Téléchargez le listing des produits actifs avec leurs photos
+                et leurs prix de vente en FCFA.
+              </p>
+
+              <button
+                type="button"
+                onclick="window.downloadClientCatalogueExcel()"
+                style="
+                  display:inline-block;
+                  padding:11px 16px;
+                  border:0;
+                  border-radius:9px;
+                  background:#1457a6;
+                  color:white;
+                  font-weight:700;
+                  cursor:pointer;
+                "
+              >
+                📥 Télécharger le listing Excel
+              </button>
+            </div>
           </div>
 
           <div class="branserv-dashboard-panel">

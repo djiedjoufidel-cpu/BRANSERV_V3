@@ -291,6 +291,79 @@ Produit visible
 </div>
 
 <h2 id="productsAdmin">Produits et stocks</h2>
+
+<section id="catalogueClientETS" style="
+  margin:20px 0;
+  padding:20px;
+  border:1px solid #d9dee7;
+  border-radius:16px;
+  background:#fff;
+  color:#172033;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);
+">
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  ">
+    <img
+      src="logo-ets-h-promesse.png"
+      alt="Logo ETS H-PROMESSE"
+      style="
+        width:90px;
+        height:90px;
+        object-fit:contain;
+        border-radius:10px;
+      "
+    >
+
+    <div style="flex:1;min-width:180px;">
+      <div style="
+        font-size:12px;
+        font-weight:700;
+        letter-spacing:1px;
+        color:#64748b;
+        margin-bottom:5px;
+      ">ETS H-PROMESSE</div>
+
+      <h3 style="
+        margin:0 0 8px;
+        font-size:22px;
+        color:#172033;
+      ">Catalogue produits</h3>
+
+      <p style="
+        margin:0;
+        font-size:14px;
+        line-height:1.6;
+        color:#475569;
+      ">
+        Téléchargez le listing des produits actifs,
+        avec leurs photos et prix de vente en FCFA.
+      </p>
+    </div>
+  </div>
+
+  <div style="
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid #e5e7eb;
+  ">
+    <a href="#"
+      onclick="downloadClientCatalogueExcel(); return false;"
+      style="
+        display:inline-block;
+        color:#1457a6;
+        font-weight:700;
+        font-size:15px;
+        text-decoration:none;
+      ">
+      📥 Télécharger le listing Excel (.xlsx)
+    </a>
+  </div>
+</section>
+
 <div id="adminProducts"></div>
 
 </main>
@@ -348,10 +421,13 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="app.js"></script>
 <script src="theme-v4.js?v=5.0"></script>
 <script src="theme-button-v4.js?v=7.0"></script>
-<script src="admin-supabase.js?v=10"></script>
+<script src="admin-supabase.js?v=11"></script>
 <script src="admin-push.js?v=1"></script>
 <script src="services-admin.js?v=1"></script>
 <script src="branserv-cities-admin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="catalogue-excel.js?v=2"></script>
+
 
 </body>
 </html>
