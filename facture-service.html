@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facture service - BRANSERV</title>
+  <title>Facture service - ETS H-PROMESSE</title>
 
   <style>
     * {
@@ -163,6 +163,8 @@
 }
 </style>
 <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 
 <body>
@@ -175,13 +177,13 @@
       <div class="company-side">
 
         <img
-          src="logo-branserv.png"
-          alt="BRANSERV"
+          src="logo-ets-h-promesse.png"
+          alt="ETS H-PROMESSE"
           class="invoice-logo"
         >
 
         <div class="company-info">
-          <strong>BRANSERV</strong><br>
+          <strong>ETS H-PROMESSE</strong><br>
           Boutique &amp; Services<br>
           Yaoundé, Cameroun<br>
           WhatsApp : +237 651 715 307<br>
@@ -230,7 +232,7 @@
 
     <div class="service-box">
       <div class="service-name" id="serviceName">
-        Service BRANSERV
+        Service ETS H-PROMESSE
       </div>
 
       <div id="serviceDescription"></div>
@@ -330,7 +332,7 @@
         formatDate(data.completed_at || data.updated_at);
 
       document.getElementById("serviceName").textContent =
-        data.service_type || "Service BRANSERV";
+        data.service_type || "Service ETS H-PROMESSE";
 
       document.getElementById("serviceDescription").textContent =
         data.description || "";
@@ -395,8 +397,8 @@ if ('serviceWorker' in navigator) {
 
 <style>
 /* =====================================================
-   BRANSERV — EN-TÊTE FACTURE SERVICE FINAL
-   BRANSERV à gauche / CLIENT à droite
+   ETS H-PROMESSE — EN-TÊTE FACTURE SERVICE FINAL
+   ETS H-PROMESSE à gauche / CLIENT à droite
    ===================================================== */
 
 .branserv-invoice-header {

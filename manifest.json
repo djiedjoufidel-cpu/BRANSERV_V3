@@ -1,7 +1,7 @@
 {
-  "name": "BRANSERV — Boutique & Services",
-  "short_name": "BRANSERV",
-  "description": "BRANSERV — Produits et services au Cameroun",
+  "name": "ETS H-PROMESSE — Boutique & Services",
+  "short_name": "H-PROMESSE",
+  "description": "ETS H-PROMESSE — Produits et services au Cameroun",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

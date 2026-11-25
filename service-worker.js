@@ -1,4 +1,4 @@
-const CACHE_NAME = "branserv-v4-pwa-v1";
+const CACHE_NAME = "branserv-v4-pwa-v2";
 
 const APP_FILES = [
   "./",
@@ -10,6 +10,9 @@ const APP_FILES = [
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
+  "./logo-ets-h-promesse.png",
+  "./apple-touch-icon.png",
+  "./favicon-48.png",
   "./style.css",
   "./app.js",
   "./language-v4.js",
@@ -57,7 +60,7 @@ self.addEventListener("fetch", event => {
 // BRANSERV : réception des notifications Web Push
 self.addEventListener("push", event => {
   let data = {
-    title: "BRANSERV — Nouvelle commande",
+    title: "ETS H-PROMESSE — Nouvelle commande",
     body: "Une nouvelle commande nécessite votre attention.",
     url: "./admin.html"
   };

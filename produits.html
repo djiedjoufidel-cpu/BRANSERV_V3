@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
 <!-- BRANSERV V4 SEO -->
-<meta name="description" content="Découvrez les produits disponibles chez BRANSERV au Cameroun : vêtements, chaussures, accessoires et autres produits.">
-<meta name="keywords" content="BRANSERV produits, boutique Cameroun, produits Yaoundé, vêtements, chaussures, accessoires">
+<meta name="description" content="Découvrez les produits disponibles chez ETS H-PROMESSE au Cameroun : vêtements, chaussures, accessoires et autres produits.">
+<meta name="keywords" content="ETS H-PROMESSE produits, boutique Cameroun, produits Yaoundé, vêtements, chaussures, accessoires">
 <meta name="theme-color" content="#087f8c">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Produits — BRANSERV Cameroun">
-<meta property="og:description" content="Découvrez les produits disponibles chez BRANSERV et commandez facilement.">
-<meta property="og:site_name" content="BRANSERV">
+<meta property="og:title" content="Produits — ETS H-PROMESSE Cameroun">
+<meta property="og:description" content="Découvrez les produits disponibles chez ETS H-PROMESSE et commandez facilement.">
+<meta property="og:site_name" content="ETS H-PROMESSE">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Produits - BRANSERV</title>
+<title>Produits - ETS H-PROMESSE</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -134,12 +134,14 @@ footer strong{color:#a7eeea}
 </style>
 
   <link rel="canonical" href="https://branserv-v3.vercel.app/produits">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 
 <body>
 
 <header>
-<a class="logo" href="index.html">BRANSERV</a>
+<a class="logo" href="index.html">ETS H-PROMESSE</a>
 
 <nav>
 <a href="index.html" data-i18n="home">Accueil</a>
@@ -154,7 +156,7 @@ footer strong{color:#a7eeea}
   <div class="hero-inner">
     <div class="breadcrumb">Accueil &nbsp;›&nbsp; Produits</div>
     <h1>Nos produits</h1>
-    <p>Découvrez les produits disponibles chez BRANSERV à Yaoundé.</p>
+    <p>Découvrez les produits disponibles chez ETS H-PROMESSE à Yaoundé.</p>
   </div>
 </section>
 
@@ -162,7 +164,7 @@ footer strong{color:#a7eeea}
 
   <div class="catalog-title">
     <div>
-      <span class="catalog-kicker">BOUTIQUE BRANSERV</span>
+      <span class="catalog-kicker">BOUTIQUE ETS H-PROMESSE</span>
       <h2>Notre catalogue</h2>
       <p>Trouvez rapidement le produit qui vous convient.</p>
     </div>
@@ -221,7 +223,7 @@ target="_blank"
 aria-label="WhatsApp">☘</a>
 
 <footer>
-<strong>BRANSERV</strong>
+<strong>ETS H-PROMESSE</strong>
 <p>Yaoundé, Cameroun</p>
 <p>WhatsApp : +237 651 715 307</p>
 <p>Email : djiedjoufidel@gmail.com</p>
@@ -252,7 +254,7 @@ function formatPrice(value){
 }
 
 function getImage(p){
-  return p.image_url || p.image || "https://via.placeholder.com/600x500?text=BRANSERV";
+  return p.image_url || p.image || "https://via.placeholder.com/600x500?text=ETS%20H-PROMESSE";
 }
 
 function updateCartCount(){
@@ -381,7 +383,7 @@ function render(){
             src="${esc(getImage(p))}"
             alt="${esc(p.name)}"
             loading="lazy"
-            onerror="this.src='https://via.placeholder.com/600x500?text=BRANSERV'"
+            onerror="this.src='https://via.placeholder.com/600x500?text=ETS%20H-PROMESSE'"
           >
 
           ${promo?'<span class="promo">PROMO</span>':""}
@@ -457,7 +459,7 @@ function renderSuggestions() {
       role="option" data-suggestion-id="${esc(p.id)}">
       <img src="${esc(getImage(p))}" alt=""
         loading="lazy"
-        onerror="this.onerror=null;this.src='https://via.placeholder.com/100?text=BRANSERV'">
+        onerror="this.onerror=null;this.src='https://via.placeholder.com/100?text=ETS%20H-PROMESSE'">
       <span class="search-suggestion-info">
         <span class="search-suggestion-name">${esc(p.name || "Produit")}</span>
         <span class="search-suggestion-category">${esc(p.category || "Produit")}</span>
